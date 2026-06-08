@@ -1,16 +1,27 @@
 import { Project } from '@/types'
 
+export interface ProjectCard {
+  icon: string          // lucide icon name
+  title: string
+  subtitle: string
+  tags: string[]
+  outcome: string
+  metrics: { label: string; value: string }[]
+  accentHex: string
+}
+
 export interface FeaturedProject {
   id: string
   tabLabel: string
-  shortLabel?: string       // mobile-shortened tab label
+  shortLabel?: string
   panelLabel: string
   heading: string
   body: string
   bullets: string[]
   ctaText: string
   ctaHref: string
-  imageUrl?: string         // optional — shows placeholder if missing
+  imageUrl?: string
+  cards: ProjectCard[]
 }
 
 export const featuredProjects: FeaturedProject[] = [
@@ -31,6 +42,44 @@ export const featuredProjects: FeaturedProject[] = [
     ctaText: 'View case study',
     ctaHref: '/projects/aegisclaim',
     imageUrl: '/images/projects/aegisclaim.jpg',
+    cards: [
+      {
+        icon: 'FileSearch',
+        title: 'Document Intelligence',
+        subtitle: 'PaddleOCR pipeline extracts structured data from unstructured claim documents.',
+        tags: ['PaddleOCR', 'ICD/CPT', 'NLP'],
+        outcome: 'Patient, prescription, and diagnosis data extracted in under 2 seconds.',
+        metrics: [{ label: 'Accuracy', value: '97%+' }, { label: 'Extraction', value: 'Real-time' }],
+        accentHex: '#0058BE',
+      },
+      {
+        icon: 'GitMerge',
+        title: 'Agent Orchestration',
+        subtitle: 'LangGraph pipeline routes claims through specialist agents for validation and fraud detection.',
+        tags: ['LangGraph', 'Multi-Agent', 'LLM'],
+        outcome: 'End-to-end claim decision without human-in-the-loop for clean submissions.',
+        metrics: [{ label: 'Pipeline', value: '5 Agents' }, { label: 'Decision', value: 'Automated' }],
+        accentHex: '#0077B6',
+      },
+      {
+        icon: 'ShieldCheck',
+        title: 'Fraud Detection',
+        subtitle: 'Dedicated fraud agent flags anomalous billing patterns before approval.',
+        tags: ['Anomaly Detection', 'Rules Engine', 'Audit'],
+        outcome: 'Full audit trail with explainable AI rationale for every decision.',
+        metrics: [{ label: 'Audit Trail', value: 'Complete' }, { label: 'Explainability', value: 'LLM' }],
+        accentHex: '#0096C7',
+      },
+      {
+        icon: 'Database',
+        title: 'FHIR Data Layer',
+        subtitle: 'Structured output conforms to FHIR standards for downstream EHR integration.',
+        tags: ['FHIR', 'PostgreSQL', 'MongoDB'],
+        outcome: 'Interoperable structured output ready for EHR integration.',
+        metrics: [{ label: 'Standard', value: 'FHIR R4' }, { label: 'Storage', value: 'Dual DB' }],
+        accentHex: '#023E8A',
+      },
+    ],
   },
   {
     id: 'campusflow',
@@ -49,6 +98,44 @@ export const featuredProjects: FeaturedProject[] = [
     ctaText: 'View case study',
     ctaHref: '/projects/campusflow',
     imageUrl: '/images/projects/campusflow.jpg',
+    cards: [
+      {
+        icon: 'Users',
+        title: 'Role-Based Dashboards',
+        subtitle: 'Separate portals for students, faculty, HODs, and admins with scoped permissions.',
+        tags: ['RBAC', 'Multi-role', 'Auth'],
+        outcome: 'Zero cross-role data leakage with permission-scoped API layer.',
+        metrics: [{ label: 'Roles', value: '4' }, { label: 'Auth', value: 'JWT + RBAC' }],
+        accentHex: '#0058BE',
+      },
+      {
+        icon: 'Zap',
+        title: 'Real-time Notifications',
+        subtitle: 'Redis pub/sub delivers approval status updates instantly across all user roles.',
+        tags: ['Redis', 'Pub/Sub', 'WebSocket'],
+        outcome: 'Sub-100ms notification delivery for all workflow state changes.',
+        metrics: [{ label: 'Latency', value: '<100ms' }, { label: 'Channel', value: 'Redis' }],
+        accentHex: '#0077B6',
+      },
+      {
+        icon: 'FileText',
+        title: 'AI Resume Generator',
+        subtitle: 'LLM-powered resume generation from student academic and project records.',
+        tags: ['OpenAI', 'PDF Export', 'Templates'],
+        outcome: 'Structured resume generated from student profile in one click.',
+        metrics: [{ label: 'Generation', value: 'One-click' }, { label: 'Format', value: 'PDF + JSON' }],
+        accentHex: '#0096C7',
+      },
+      {
+        icon: 'Search',
+        title: 'Scholar Pipeline',
+        subtitle: 'SerpAPI + Google Scholar integration builds faculty publication profiles automatically.',
+        tags: ['SerpAPI', 'Scholar', 'Concurrency'],
+        outcome: 'Faculty portfolios auto-populated from public academic records.',
+        metrics: [{ label: 'Sources', value: 'Multi-API' }, { label: 'Merge', value: 'Conflict-aware' }],
+        accentHex: '#023E8A',
+      },
+    ],
   },
   {
     id: 'infinix',
@@ -67,6 +154,44 @@ export const featuredProjects: FeaturedProject[] = [
     ctaText: 'View case study',
     ctaHref: '/projects/infinix',
     imageUrl: '/images/projects/infinix.jpg',
+    cards: [
+      {
+        icon: 'Brain',
+        title: 'Persona Injection',
+        subtitle: 'Dynamic system prompt construction adapts the assistant\'s behavior per domain context.',
+        tags: ['Prompting', 'Persona', 'LLM'],
+        outcome: 'Assistant tone and depth shift seamlessly between domains.',
+        metrics: [{ label: 'Personas', value: 'Dynamic' }, { label: 'Strategy', value: 'System Prompt' }],
+        accentHex: '#0058BE',
+      },
+      {
+        icon: 'MessageSquare',
+        title: 'Context Management',
+        subtitle: 'Sliding window + summarisation keeps long conversations coherent without token overflow.',
+        tags: ['Context Window', 'Summarisation', 'Memory'],
+        outcome: 'Coherent multi-turn conversations across 100+ message threads.',
+        metrics: [{ label: 'Window', value: 'Sliding' }, { label: 'Memory', value: 'Summarised' }],
+        accentHex: '#0077B6',
+      },
+      {
+        icon: 'Wifi',
+        title: 'Streaming Responses',
+        subtitle: 'Token-by-token streaming via SSE gives users instant feedback as the model generates.',
+        tags: ['SSE', 'Streaming', 'FastAPI'],
+        outcome: 'Perceived latency near zero — first token in under 300ms.',
+        metrics: [{ label: 'First Token', value: '<300ms' }, { label: 'Transport', value: 'SSE' }],
+        accentHex: '#0096C7',
+      },
+      {
+        icon: 'Layout',
+        title: 'Embeddable Widget',
+        subtitle: 'Ships as a standalone app or an iframe-embeddable widget with a single config object.',
+        tags: ['Widget', 'Embed', 'TypeScript'],
+        outcome: 'Drop-in deployment to any site with one script tag.',
+        metrics: [{ label: 'Deploy Mode', value: 'Widget / App' }, { label: 'Config', value: 'Single Object' }],
+        accentHex: '#023E8A',
+      },
+    ],
   },
 ]
 
