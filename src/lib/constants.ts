@@ -4,9 +4,9 @@ export const SITE_META = {
   description:
     'Portfolio of Rajamurugan VS — Full Stack Developer & GenAI Engineer. I build systems that are intelligent by design.',
   url: 'https://rajamuruganvs.dev',
-  email: 'rajamuruganvs@gmail.com',
-  github: 'https://github.com/rajamuruganvs',
-  linkedin: 'https://linkedin.com/in/rajamuruganvs',
+  email: 'rajamurugan.dev@gmail.com',
+  github: 'https://github.com/RAJAMURUGAN-VS',
+  linkedin: 'https://www.linkedin.com/in/rajamurugan-vs/',
 }
 
 export const NAV_LINKS = [

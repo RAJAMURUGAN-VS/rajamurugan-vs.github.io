@@ -2,67 +2,32 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
-import Image from 'next/image'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { featuredProjects, type FeaturedProject } from '@/data/projects'
-import { useScroll, useTransform } from 'framer-motion'
+import { Orbit3DCarousel, type OrbitItem } from '@/components/ui/EllipticalOrbit'
 
 // Unsplash fallback images per project id
 const FALLBACK_IMAGES: Record<string, string> = {
-  aegisclaim:      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&q=80', // medical/healthcare
-  campusflow:      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1400&q=80', // campus/university
-  infinix:         'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1400&q=80', // AI chat
+  aegisclaim:       'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&q=80',
+  campusflow:       'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1400&q=80',
+  infinix:          'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1400&q=80',
+  roadmapai:        'https://images.unsplash.com/photo-1488190211105-8b0e65b80b4e?w=1400&q=80',
+  'railway-defect': 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?w=1400&q=80',
+  designsystem:     'https://images.unsplash.com/photo-1558655146-9f40138edfeb?w=1400&q=80',
 }
+
+// Extra decorative orbit cards (not in the text panel list)
+const EXTRA_ORBIT_CARDS = [
+  { id: 'roadmapai',        label: 'RoadmapAI',      href: '#' },
+  { id: 'railway-defect',   label: 'RailGuard',       href: '#' },
+  { id: 'designsystem',     label: 'Design System',   href: '#' },
+]
 
 // ─── Section entrance only ────────────────────────────────────────────────────
 
 const sectionVariants = {
   hidden: { opacity: 0, y: 40 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
-}
-
-// ─── Scroll-tilt project image ────────────────────────────────────────────────
-
-function ProjectScrollImage({
-  project,
-  panelRef,
-}: {
-  project: FeaturedProject
-  panelRef: React.RefObject<HTMLDivElement>
-}) {
-  const src = project.imageUrl ?? FALLBACK_IMAGES[project.id] ?? FALLBACK_IMAGES['aegisclaim']
-
-  const { scrollYProgress } = useScroll({
-    target: panelRef,
-    offset: ['start 90%', 'start 20%'],
-  })
-
-  const rotateX = useTransform(scrollYProgress, [0, 1], [22, 0])
-  const scale   = useTransform(scrollYProgress, [0, 1], [0.92, 1])
-
-  return (
-    <div style={{ perspective: '1000px' }} className="h-full">
-      <motion.div
-        style={{
-          rotateX,
-          scale,
-          boxShadow: '0 8px 48px rgba(0,0,0,0.7)',
-        }}
-        className="w-full h-full overflow-hidden rounded-2xl border border-[#6C6C6C]/40"
-      >
-        <div className="relative w-full h-full min-h-[300px]">
-          <Image
-            src={src}
-            alt={`${project.tabLabel} screenshot`}
-            fill
-            className="object-cover object-top"
-            sizes="(max-width: 768px) 100vw, 50vw"
-            draggable={false}
-          />
-        </div>
-      </motion.div>
-    </div>
-  )
 }
 
 // ─── Individual project panel — always rendered, no show/hide ────────────────
@@ -98,62 +63,47 @@ function ProjectPanel({
 
   return (
     <div ref={ref} id={project.id}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
+      <div className="flex flex-col">
+        <span
+          className="text-[11px] font-semibold uppercase"
+          style={{ letterSpacing: '0.1em', color: '#6EE7F7' }}
+        >
+          {project.panelLabel}
+        </span>
 
-        {/* Text column */}
-        <div className="flex flex-col">
-          <span
-            className="text-[11px] font-semibold uppercase"
-            style={{ letterSpacing: '0.1em', color: '#6EE7F7' }}
-          >
-            {project.panelLabel}
-          </span>
+        <h3
+          className="font-display font-bold leading-[1.1] mt-4"
+          style={{ fontSize: 'clamp(24px,3.5vw,40px)', color: '#f2f2f2' }}
+        >
+          {project.heading}
+        </h3>
 
-          <h3
-            className="font-display font-bold leading-[1.1] mt-4"
-            style={{ fontSize: 'clamp(24px,3.5vw,40px)', color: '#f2f2f2' }}
-          >
-            {project.heading}
-          </h3>
+        <p className="mt-5" style={{ fontSize: 16, lineHeight: 1.75, color: '#999999' }}>
+          {project.body}
+        </p>
 
-          <p className="mt-5" style={{ fontSize: 16, lineHeight: 1.75, color: '#999999' }}>
-            {project.body}
-          </p>
+        <ul className="flex flex-col mt-6" style={{ gap: 10 }} role="list">
+          {project.bullets.map((bullet, i) => (
+            <li key={i} className="flex gap-3" style={{ fontSize: 14, color: '#888888' }}>
+              <span className="shrink-0 mt-px select-none" style={{ color: '#6EE7F7' }}>—</span>
+              <span>{bullet}</span>
+            </li>
+          ))}
+        </ul>
 
-          <ul className="flex flex-col mt-6" style={{ gap: 10 }} role="list">
-            {project.bullets.map((bullet, i) => (
-              <li
-                key={i}
-                className="flex gap-3"
-                style={{ fontSize: 14, color: '#888888' }}
-              >
-                <span className="shrink-0 mt-px select-none" style={{ color: '#6EE7F7' }}>—</span>
-                <span>{bullet}</span>
-              </li>
-            ))}
-          </ul>
-
-          <a
-            href={project.ctaHref}
-            className="mt-7 inline-flex items-center gap-1 w-fit hover:underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-            style={{ fontSize: 14, color: '#6EE7F7' }}
-          >
-            {project.ctaText}
-            <span aria-hidden="true"> →</span>
-          </a>
-        </div>
-
-        {/* Image column — fills same height as text column */}
-        <div className="w-full h-full">
-          <ProjectScrollImage project={project} panelRef={ref} />
-        </div>
-
+        <a
+          href={project.ctaHref}
+          className="mt-7 inline-flex items-center gap-1 w-fit hover:underline transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+          style={{ fontSize: 14, color: '#6EE7F7' }}
+        >
+          {project.ctaText}
+          <span aria-hidden="true"> →</span>
+        </a>
       </div>
 
-      {/* Separator — not shown after last project */}
       {!isLast && (
         <div
-          className="mt-28 lg:mt-36"
+          className="mt-20 lg:mt-28"
           style={{ width: '100%', height: 1, background: 'rgba(255,255,255,0.06)' }}
           aria-hidden="true"
         />
@@ -231,6 +181,8 @@ export default function FeaturedProjects() {
   const [activeId, setActiveId] = useState(featuredProjects[0].id)
   const reduced = useReducedMotion()
 
+  const activeIndex = featuredProjects.findIndex((p) => p.id === activeId)
+
   // Memoised per-project callback — stable reference so useEffect doesn't loop
   const handlers = useRef<Record<string, () => void>>({})
   featuredProjects.forEach((p) => {
@@ -245,6 +197,11 @@ export default function FeaturedProjects() {
       const top = el.getBoundingClientRect().top + window.scrollY - 88 - 24
       window.scrollTo({ top, behavior: 'smooth' })
     }
+  }, [])
+
+  const handleCarouselIndex = useCallback((index: number) => {
+    const p = featuredProjects[index]
+    if (p) setActiveId(p.id)
   }, [])
 
   return (
@@ -302,8 +259,8 @@ export default function FeaturedProjects() {
           })}
         </div>
 
-        {/* Two-column layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-16 lg:gap-20 items-start">
+        {/* Three-column layout: sidebar | text panels | sticky carousel */}
+        <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr_420px] gap-12 lg:gap-16 items-start">
 
           {/* Sticky sidebar */}
           <Sidebar
@@ -312,7 +269,7 @@ export default function FeaturedProjects() {
             onItemClick={handleSidebarClick}
           />
 
-          {/* All projects stacked — always rendered */}
+          {/* Text panels stacked */}
           <div className="min-w-0">
             {featuredProjects.map((p, i) => (
               <ProjectPanel
@@ -322,6 +279,121 @@ export default function FeaturedProjects() {
                 isLast={i === featuredProjects.length - 1}
               />
             ))}
+          </div>
+
+          {/* Sticky 3-D orbit carousel */}
+          <div
+            className="hidden lg:flex items-center justify-center"
+            style={{ position: 'sticky', top: 88, height: '70vh' }}
+          >
+            <Orbit3DCarousel
+              items={[
+                // Featured project cards (linked to text panels)
+                ...featuredProjects.map((p, i): OrbitItem => ({
+                  key: p.id,
+                  node: (
+                    <a
+                      href={p.ctaHref}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                      tabIndex={-1}
+                      aria-label={p.tabLabel}
+                    >
+                      <div
+                        style={{
+                          width: 260,
+                          height: 185,
+                          borderRadius: 16,
+                          overflow: 'hidden',
+                          border:
+                            i === activeIndex
+                              ? '2px solid #6EE7F7'
+                              : '2px solid rgba(255,255,255,0.08)',
+                          boxShadow: '0 12px 40px rgba(0,0,0,0.6)',
+                          background: '#111',
+                          transition: 'border-color 0.3s ease',
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={FALLBACK_IMAGES[p.id] ?? FALLBACK_IMAGES['aegisclaim']}
+                          alt={`${p.tabLabel} screenshot`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                          draggable={false}
+                        />
+                      </div>
+                      <p
+                        style={{
+                          margin: '8px 0 0',
+                          textAlign: 'center',
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: i === activeIndex ? '#6EE7F7' : 'rgba(255,255,255,0.35)',
+                          letterSpacing: '0.06em',
+                          transition: 'color 0.3s ease',
+                        }}
+                      >
+                        {p.tabLabel.toUpperCase()}
+                      </p>
+                    </a>
+                  ),
+                })),
+                // Extra decorative orbit cards
+                ...EXTRA_ORBIT_CARDS.map((card): OrbitItem => ({
+                  key: card.id,
+                  node: (
+                    <a
+                      href={card.href}
+                      style={{ textDecoration: 'none', display: 'block' }}
+                      tabIndex={-1}
+                      aria-label={card.label}
+                    >
+                      <div
+                        style={{
+                          width: 260,
+                          height: 185,
+                          borderRadius: 16,
+                          overflow: 'hidden',
+                          border: '2px solid rgba(255,255,255,0.06)',
+                          boxShadow: '0 12px 40px rgba(0,0,0,0.5)',
+                          background: '#111',
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={FALLBACK_IMAGES[card.id] ?? FALLBACK_IMAGES['aegisclaim']}
+                          alt={`${card.label} screenshot`}
+                          style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'brightness(0.7)' }}
+                          draggable={false}
+                        />
+                      </div>
+                      <p
+                        style={{
+                          margin: '8px 0 0',
+                          textAlign: 'center',
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: 'rgba(255,255,255,0.22)',
+                          letterSpacing: '0.06em',
+                        }}
+                      >
+                        {card.label.toUpperCase()}
+                      </p>
+                    </a>
+                  ),
+                })),
+              ]}
+              orientation="horizontal"
+              radius={270}
+              scrollSpeed={0.04}
+              baseTiltAngle={-14}
+              mouseTiltIntensity={8}
+              dragSpeed={0.25}
+              cardScale={1}
+              showCursor={true}
+              cursorText="View"
+              cursorBgColor="#6EE7F7"
+              cursorTextColor="#080808"
+            />
           </div>
 
         </div>
