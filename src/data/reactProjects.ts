@@ -1,0 +1,52 @@
+export interface ReactProject {
+  id: number
+  title: string
+  url: string
+  image: string
+}
+
+export const reactProjects: ReactProject[] = [
+  { id: 1,  title: 'Reusable Banners',    url: 'https://rajamurugan1.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1764872927/Screenshot_2025-12-04_235833_uzeqzs.png' },
+  { id: 2,  title: 'Technology Cards',    url: 'https://rajamurugan2.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1764874231/Screenshot_2025-12-05_000355_jkyiyc.png' },
+  { id: 3,  title: 'Click Counter',       url: 'https://rajamurugan3.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1764874302/Screenshot_2025-12-05_000552_kusbma.png' },
+  { id: 4,  title: 'Speedometer',         url: 'https://rajamurugan4.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1764874354/Screenshot_2025-12-05_000644_idnqnm.png' },
+  { id: 5,  title: 'Fruits Counter',      url: 'https://rajamurugan5.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765613760/Screenshot_2025-12-13_134528_dyb6wn.png' },
+  { id: 6,  title: 'Welcome App',         url: 'https://rajamurugan6.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765614479/Screenshot_2025-12-13_135748_uuj3hp.png' },
+  { id: 7,  title: 'Light Dark Mode',     url: 'https://rajamurugan7.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765033623/Screenshot_2025-12-06_203641_ig6wby.png' },
+  { id: 8,  title: 'Show/Hide App',       url: 'https://rajamurugan8.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765040211/Screenshot_2025-12-06_222554_lhdvi9.png' },
+  { id: 9,  title: 'Even Odd App',        url: 'https://rajamurugan9.ccbp.tech',                        image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765615381/Screenshot_2025-12-13_141245_boymje.png' },
+  { id: 10, title: 'Login App',           url: 'https://rajamurugan10.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765617758/Screenshot_2025-12-13_145220_ap0dbb.png' },
+  { id: 11, title: 'Random Generator',    url: 'https://rajamurugan11.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765176390/Screenshot_2025-12-08_121548_dhomxw.png' },
+  { id: 12, title: 'Destination Search',  url: 'https://rajamurugan12.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765618967/Screenshot_2025-12-13_151231_vjdhjq.png' },
+  { id: 13, title: 'Simple Todos',        url: 'https://rajamurugan13.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765624176/Screenshot_2025-12-13_163851_cfqelb.png' },
+  { id: 14, title: 'Cash Withdrawal',     url: 'https://rajamurugan14.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765256537/Screenshot_2025-12-09_103105_wez0ub.png' },
+  { id: 15, title: 'Google Search',       url: 'https://rajamurugan15.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765270683/Screenshot_2025-12-09_142749_tqf9jd.png' },
+  { id: 16, title: 'Letters Calculator',  url: 'https://rajamurugan16.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765278181/Screenshot_2025-12-09_163248_xzywo3.png' },
+  { id: 17, title: 'Browser History',     url: 'https://rajamurugan17.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765350189/Screenshot_2025-12-10_123220_uawslg.png' },
+  { id: 18, title: 'Feedback App',        url: 'https://rajamurugan18.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765447733/Screenshot_2025-12-11_153807_zfxqj0.png' },
+  { id: 19, title: 'Gallery App',         url: 'https://rajamurugan19.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765519295/Screenshot_2025-12-12_113100_mr3kcl.png' },
+  { id: 20, title: 'App Store',           url: 'https://rajamurugan20.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765536921/Screenshot_2025-12-12_162440_x60wra.png' },
+  { id: 21, title: 'Coin Toss Game',      url: 'https://rajamurugan21.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765544039/Screenshot_2025-12-12_182318_ddmh8w.png' },
+  { id: 22, title: 'Reviews App',         url: 'https://rajamurugan22.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765603306/Screenshot_2025-12-13_105103_td3ord.png' },
+  { id: 23, title: 'Comments App',        url: 'https://rajamurugan23.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765720134/Screenshot_2025-12-14_191840_h8x4pf.png' },
+  { id: 24, title: 'Appointments App',    url: 'https://rajamurugan24.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765813885/Screenshot_2025-12-15_211921_xpdvp9.png' },
+  { id: 25, title: 'Money Manager',       url: 'https://rajamurugan25.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1765905717/Screenshot_2025-12-16_225141_sx6cwn.png' },
+  { id: 26, title: 'Emoji Game',          url: 'https://rajamurugan26.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766077034/Screenshot_2025-12-18_222513_idjpgy.png' },
+  { id: 27, title: 'Digital Timer App',   url: 'https://rajamurugan27.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766252899/Screenshot_2025-12-20_231805_ocj7j3.png' },
+  { id: 28, title: 'StopWatch',           url: 'https://rajamurugan28.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766337098/Screenshot_2025-12-21_224118_emsg6o.png' },
+  { id: 29, title: 'Faqs App',            url: 'https://rajamurugan29.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766300263/Screenshot_2025-12-21_122707_hfxtpf.png' },
+  { id: 30, title: 'Password Manager',    url: 'https://rajamurugan30.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766412054/Screenshot_2025-12-22_192948_rqulxz.png' },
+  { id: 31, title: 'Match Game',          url: 'https://rajamurugan31.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766593441/Screenshot_2025-12-24_215232_bdr78f.png' },
+  { id: 32, title: 'Blog List',           url: 'https://rajamurugan32.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766902937/Screenshot_2025-12-28_115129_jylvoa.png' },
+  { id: 33, title: 'Cryptocurrency',      url: 'https://rajamurugan33.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1766932224/Screenshot_2025-12-28_195949_kbesa4.png' },
+  { id: 34, title: 'IPL Dashboard App',   url: 'https://rajamurugan34.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1767111474/Screenshot_2025-12-30_214704_ucsyvs.png' },
+  { id: 35, title: 'Registration Form',   url: 'https://rajamurugan35.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1767370867/Screenshot_2026-01-02_215055_d6jlc0.png' },
+  { id: 36, title: 'Events',              url: 'https://rajamurugan36.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1767450988/Screenshot_2026-01-03_200611_o3av7f.png' },
+  { id: 37, title: 'Github Repos',        url: 'https://rajamurugan37.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1767536989/Screenshot_2026-01-04_195936_deamfi.png' },
+  { id: 38, title: 'Cowin Dashboard',     url: 'https://rajamurugan38.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1767887321/Screenshot_2026-01-08_211800_wruopi.png' },
+  { id: 39, title: 'CCBP Timeline',       url: 'https://rajamurugan39.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1768190779/Screenshot_2026-01-12_093544_ly2bjw.png' },
+  { id: 40, title: 'Planets App',         url: 'https://rajamurugan40.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1768203704/Screenshot_2026-01-12_131128_xziz5l.png' },
+  { id: 41, title: 'Hamburger Menu',      url: 'https://rajamurugan41.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1768309561/Screenshot_2026-01-13_183504_qd3lhx.png' },
+  { id: 42, title: 'Prime Video',         url: 'https://rajamurugan42.ccbp.tech',                       image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1768369914/Screenshot_2026-01-14_111745_n6whiq.png' },
+  { id: 43, title: 'Jobby App',           url: 'https://rajamurugan-vs.github.io/jobby-app/',           image: 'https://res.cloudinary.com/dydplsxdj/image/upload/v1768745911/Screenshot_2026-01-18_194732_e7zswd.png' },
+]
