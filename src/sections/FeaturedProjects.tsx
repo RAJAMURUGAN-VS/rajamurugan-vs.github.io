@@ -2,8 +2,17 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { motion } from 'framer-motion'
+import Image from 'next/image'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { featuredProjects, type FeaturedProject } from '@/data/projects'
+import { useScroll, useTransform } from 'framer-motion'
+
+// Unsplash fallback images per project id
+const FALLBACK_IMAGES: Record<string, string> = {
+  aegisclaim:      'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=1400&q=80', // medical/healthcare
+  campusflow:      'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=1400&q=80', // campus/university
+  infinix:         'https://images.unsplash.com/photo-1677442135703-1787eea5ce01?w=1400&q=80', // AI chat
+}
 
 // ─── Section entrance only ────────────────────────────────────────────────────
 
@@ -12,17 +21,46 @@ const sectionVariants = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: [0.16, 1, 0.3, 1] as const } },
 }
 
-// ─── Image placeholder ────────────────────────────────────────────────────────
+// ─── Scroll-tilt project image ────────────────────────────────────────────────
 
-function ProjectImagePlaceholder({ label }: { label: string }) {
+function ProjectScrollImage({
+  project,
+  panelRef,
+}: {
+  project: FeaturedProject
+  panelRef: React.RefObject<HTMLDivElement>
+}) {
+  const src = project.imageUrl ?? FALLBACK_IMAGES[project.id] ?? FALLBACK_IMAGES['aegisclaim']
+
+  const { scrollYProgress } = useScroll({
+    target: panelRef,
+    offset: ['start 90%', 'start 20%'],
+  })
+
+  const rotateX = useTransform(scrollYProgress, [0, 1], [22, 0])
+  const scale   = useTransform(scrollYProgress, [0, 1], [0.92, 1])
+
   return (
-    <div
-      className="w-full flex items-center justify-center bg-[#111111]"
-      style={{ aspectRatio: '16/10' }}
-    >
-      <span className="font-mono text-sm" style={{ color: '#2a2a2a' }}>
-        {label} · screenshot
-      </span>
+    <div style={{ perspective: '1000px' }} className="h-full">
+      <motion.div
+        style={{
+          rotateX,
+          scale,
+          boxShadow: '0 8px 48px rgba(0,0,0,0.7)',
+        }}
+        className="w-full h-full overflow-hidden rounded-2xl border border-[#6C6C6C]/40"
+      >
+        <div className="relative w-full h-full min-h-[300px]">
+          <Image
+            src={src}
+            alt={`${project.tabLabel} screenshot`}
+            fill
+            className="object-cover object-top"
+            sizes="(max-width: 768px) 100vw, 50vw"
+            draggable={false}
+          />
+        </div>
+      </motion.div>
     </div>
   )
 }
@@ -60,7 +98,7 @@ function ProjectPanel({
 
   return (
     <div ref={ref} id={project.id}>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14 items-stretch">
 
         {/* Text column */}
         <div className="flex flex-col">
@@ -105,15 +143,9 @@ function ProjectPanel({
           </a>
         </div>
 
-        {/* Image column */}
-        <div
-          className="w-full overflow-hidden rounded-xl"
-          style={{
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 8px 48px rgba(0,0,0,0.6)',
-          }}
-        >
-          <ProjectImagePlaceholder label={project.tabLabel} />
+        {/* Image column — fills same height as text column */}
+        <div className="w-full h-full">
+          <ProjectScrollImage project={project} panelRef={ref} />
         </div>
 
       </div>
