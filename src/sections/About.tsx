@@ -3,16 +3,16 @@ import { SectionLabel } from '@/components/ui/SectionLabel'
 
 export default function About() {
   return (
-    <section id="about" className="px-6 py-24 md:px-12 md:py-32 bg-[#111111]">
+    <section data-theme="light" id="about" className="px-6 py-24 md:px-12 md:py-32" style={{ background: '#f0f4f8' }}>
       <div className="max-w-3xl mx-auto">
         <ScrollReveal className="mb-10">
-          <SectionLabel>About Me</SectionLabel>
-          <h2 className="mt-3 font-display text-[clamp(32px,5vw,56px)] font-bold text-[#f2f2f2]">
+          <SectionLabel className="text-[#1a56db]">About Me</SectionLabel>
+          <h2 className="mt-3 font-display text-[clamp(32px,5vw,56px)] font-bold text-[#0a1628]">
             Engineering by instinct.
           </h2>
         </ScrollReveal>
 
-        <div className="flex flex-col gap-5 text-[17px] leading-[1.8] text-[#888888]">
+        <div className="flex flex-col gap-5 text-[17px] leading-[1.8] text-[#374151]">
           <ScrollReveal delay={100}>
             <p>
               I&apos;m Rajamurugan VS — a final-year Computer Science student at Sri Eshwar College

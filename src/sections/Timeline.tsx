@@ -6,7 +6,7 @@ export default function Timeline() {
   if (!timelineEntries.length) return null
 
   return (
-    <section id="timeline" className="px-6 py-24 md:px-12 md:py-32 bg-[#080808]">
+    <section data-theme="dark" id="timeline" className="px-6 py-24 md:px-12 md:py-32 bg-[#080808]">
       <div className="max-w-3xl mx-auto">
         <ScrollReveal className="mb-16">
           <SectionLabel>Journey</SectionLabel>

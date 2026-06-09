@@ -141,6 +141,7 @@ export default function ReactJourney() {
 
   return (
     <section
+      data-theme="dark"
       id="react-journey"
       className="px-6 md:px-12 py-24 md:py-32"
       style={{ background: '#080808', borderTop: '1px solid rgba(255,255,255,0.06)' }}
@@ -238,7 +239,7 @@ export default function ReactJourney() {
               className="px-4 py-2 text-sm rounded-md border transition-colors duration-150 disabled:opacity-30 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               style={{ borderColor: 'rgba(255,255,255,0.1)', color: '#666666' }}
               onMouseEnter={(e) => { if (page !== TOTAL_PAGES) { e.currentTarget.style.color = '#cccccc'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)' } }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = '#666666'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' } }
+              onMouseLeave={(e) => { e.currentTarget.style.color = '#666666'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
             >
               Next →
             </button>

@@ -181,6 +181,7 @@ export default function FeaturedProjects() {
 
   return (
     <motion.section
+      data-theme="dark"
       id="projects"
       variants={reduced ? {} : sectionVariants}
       initial="hidden"

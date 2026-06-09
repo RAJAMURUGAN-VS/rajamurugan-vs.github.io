@@ -3,10 +3,10 @@ import type { MarqueeItem } from '@/types'
 interface MarqueeProps {
   items: MarqueeItem[]
   speed?: number
+  light?: boolean
 }
 
-export function Marquee({ items, speed = 30 }: MarqueeProps) {
-  // Duplicate items for seamless loop
+export function Marquee({ items, speed = 30, light = false }: MarqueeProps) {
   const track = [...items, ...items]
 
   return (
@@ -18,7 +18,8 @@ export function Marquee({ items, speed = 30 }: MarqueeProps) {
         {track.map((item, i) => (
           <span
             key={`${item.label}-${i}`}
-            className="mx-6 whitespace-nowrap text-sm font-medium text-[#555555] transition-colors duration-200 hover:text-[#888888]"
+            className="mx-6 whitespace-nowrap text-sm font-medium transition-colors duration-200"
+            style={{ color: light ? '#4a5568' : '#555555' }}
           >
             {item.label}
           </span>

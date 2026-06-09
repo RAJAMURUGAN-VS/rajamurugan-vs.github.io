@@ -8,13 +8,15 @@ export default function ImpactStats() {
 
   return (
     <section
+      data-theme="light"
       id="impact"
-      className="px-6 py-24 md:px-12 md:py-32 bg-[#111111]"
+      className="px-6 py-24 md:px-12 md:py-32"
+      style={{ background: '#f0f4f8' }}
     >
       <div className="max-w-6xl mx-auto">
         <ScrollReveal className="mb-16 text-center">
-          <SectionLabel>By the Numbers</SectionLabel>
-          <h2 className="mt-3 font-display text-[clamp(32px,5vw,56px)] font-bold text-[#f2f2f2]">
+          <SectionLabel className="text-[#1a56db]">By the Numbers</SectionLabel>
+          <h2 className="mt-3 font-display text-[clamp(32px,5vw,56px)] font-bold text-[#0a1628]">
             Impact that speaks.
           </h2>
         </ScrollReveal>
@@ -24,12 +26,12 @@ export default function ImpactStats() {
             <ScrollReveal key={stat.label} delay={i * 100} direction="up">
               <div className="flex flex-col items-center text-center gap-2">
                 <div
-                  className="font-display font-extrabold text-[#f2f2f2]"
+                  className="font-display font-extrabold text-[#0a1628]"
                   style={{ fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 1 }}
                 >
                   <CountUp end={stat.value} duration={1500} suffix={stat.suffix ?? ''} />
                 </div>
-                <p className="text-[13px] font-medium uppercase tracking-[0.1em] text-[#555555]">
+                <p className="text-[13px] font-medium uppercase tracking-[0.1em] text-[#4a5568]">
                   {stat.label}
                 </p>
               </div>

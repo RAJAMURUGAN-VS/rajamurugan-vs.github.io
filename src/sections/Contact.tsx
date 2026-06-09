@@ -22,6 +22,7 @@ function LinkedInIcon({ size = 18 }: { size?: number }) {
 export default function Contact() {
   return (
     <section
+      data-theme="dark"
       id="contact"
       className="px-6 py-32 md:px-12 md:py-40 bg-[#080808] text-center"
     >

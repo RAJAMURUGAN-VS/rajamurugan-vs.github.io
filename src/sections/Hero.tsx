@@ -23,6 +23,7 @@ export default function Hero() {
 
   return (
     <section
+      data-theme="dark"
       id="hero"
       ref={heroRef}
       className="relative flex min-h-screen items-center justify-center overflow-hidden px-6 pt-24 pb-16 md:px-12 md:pt-32"

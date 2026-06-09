@@ -92,6 +92,7 @@ export default function GenAIJourney() {
 
   return (
     <section
+      data-theme="dark"
       ref={sectionRef}
       id="genai-journey"
       className="px-6 md:px-12 py-24 md:py-32"

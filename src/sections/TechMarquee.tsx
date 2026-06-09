@@ -4,10 +4,12 @@ import { marqueeItems } from '@/data/marquee'
 export default function TechMarquee() {
   return (
     <section
-      className="py-10 border-y border-[#ffffff08]"
+      data-theme="dark"
+      className="py-10"
+      style={{ background: '#f0f4f8', borderTop: '1px solid rgba(0,0,0,0.06)', borderBottom: '1px solid rgba(0,0,0,0.06)' }}
       aria-label="Technologies and institutions"
     >
-      <Marquee items={marqueeItems} speed={35} />
+      <Marquee items={marqueeItems} speed={35} light />
     </section>
   )
 }

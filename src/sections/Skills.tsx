@@ -7,7 +7,7 @@ export default function Skills() {
   if (!skillDomains.length) return null
 
   return (
-    <section id="skills" className="px-6 py-24 md:px-12 md:py-32 bg-[#080808]">
+    <section data-theme="dark" id="skills" className="px-6 py-24 md:px-12 md:py-32 bg-[#080808]">
       <div className="max-w-6xl mx-auto">
         <ScrollReveal className="mb-16">
           <SectionLabel>Technical Skills</SectionLabel>
