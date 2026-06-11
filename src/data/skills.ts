@@ -15,6 +15,6 @@ export const skillDomains: SkillDomain[] = [
   },
   {
     domain: 'DevOps',
-    skills: ['Docker', 'AWS', 'Vercel', 'GitHub Actions', 'Linux'],
+    skills: ['Docker', 'Vercel', 'GitHub Actions'],
   },
 ]

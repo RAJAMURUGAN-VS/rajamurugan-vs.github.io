@@ -15,8 +15,7 @@ export default function About() {
         <div className="flex flex-col gap-5 text-[17px] leading-[1.8] text-[#374151]">
           <ScrollReveal delay={100}>
             <p>
-              I&apos;m Rajamurugan VS — a final-year Computer Science student at Sri Eshwar College
-              of Engineering who has spent the last three years obsessively building things that
+              I&apos;m Rajamurugan VS — a final-year Computer Science student at RMD Engineering College who has spent the last three years obsessively building things that
               work. Not just apps. Systems.
             </p>
           </ScrollReveal>

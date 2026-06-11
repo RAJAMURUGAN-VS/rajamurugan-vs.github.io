@@ -4,7 +4,7 @@ export const timelineEntries: TimelineEntry[] = [
   {
     period: '2021 – 2025',
     title: 'B.Tech Computer Science & Engineering',
-    organization: 'Sri Eshwar College of Engineering',
+    organization: 'RMD Engineering College',
     description:
       'Pursuing a four-year undergraduate programme in Computer Science with a focus on software engineering, data structures, and machine learning. Consistent academic performer with active participation in college tech fests and coding clubs.',
     type: 'education',

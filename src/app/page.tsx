@@ -2,6 +2,7 @@ import Hero from '@/sections/Hero'
 import TechMarquee from '@/sections/TechMarquee'
 import FeaturedProjects from '@/sections/FeaturedProjects'
 import ReactJourney from '@/sections/ReactJourney'
+import BuildHistory from '@/sections/BuildHistory'
 import GenAIJourney from '@/sections/GenAIJourney'
 import ImpactStats from '@/sections/ImpactStats'
 import Skills from '@/sections/Skills'
@@ -18,6 +19,7 @@ export default function Home() {
       <TechMarquee />
       <FeaturedProjects />
       <ReactJourney />
+      <BuildHistory />
       <GenAIJourney />
       <ImpactStats />
       <Skills />

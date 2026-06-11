@@ -14,12 +14,6 @@ export const certifications: Certification[] = [
     credentialUrl: 'https://catalog-education.oracle.com/pls/certview/sharebadge?id=OCI-FOUNDATIONS-2023',
   },
   {
-    name: 'AWS Certified Cloud Practitioner',
-    issuer: 'Amazon Web Services',
-    date: '2024-03',
-    credentialUrl: 'https://www.credly.com/badges/aws-ccp',
-  },
-  {
     name: 'Python for Data Science, AI & Development',
     issuer: 'IBM / Coursera',
     date: '2023-06',

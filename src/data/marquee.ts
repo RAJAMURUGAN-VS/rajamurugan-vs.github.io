@@ -8,12 +8,11 @@ export const marqueeItems: MarqueeItem[] = [
   { label: 'Node.js' },
   { label: 'FastAPI' },
   { label: 'LangChain' },
-  { label: 'AWS' },
   { label: 'Docker' },
   { label: 'PostgreSQL' },
   { label: 'Vercel' },
   { label: 'GitHub' },
   { label: 'NxtWave' },
   { label: 'Oracle' },
-  { label: 'Sri Eshwar College of Engineering' },
+  { label: 'RMD Engineering College' },
 ]
