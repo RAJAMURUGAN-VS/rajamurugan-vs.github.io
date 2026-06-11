@@ -87,12 +87,15 @@ export function BuildHistory() {
   const [data, setData] = useState<ApiResponse | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
+  const [revealed, setRevealed] = useState(false)
   const sectionRef = useRef(null)
+  const gridRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(sectionRef, { once: true, amount: 0.1 })
 
   useEffect(() => {
     setLoading(true)
     setError(false)
+    setRevealed(false)
 
     const yearParam = selectedYear === 'lastYear' ? 'last' : selectedYear
     fetch(`https://github-contributions-api.jogruber.de/v4/RAJAMURUGAN-VS?y=${yearParam}`)
@@ -100,6 +103,18 @@ export function BuildHistory() {
       .then((d: ApiResponse) => { setData(d); setLoading(false) })
       .catch(() => { setError(true); setLoading(false) })
   }, [selectedYear])
+
+  // Trigger reveal once grid is in view and data is loaded
+  useEffect(() => {
+    if (loading || error || !gridRef.current) return
+    const el = gridRef.current
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect() } },
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [loading, error])
 
   // Derived values
   const allDays    = data?.contributions ?? []
@@ -201,7 +216,7 @@ export function BuildHistory() {
             <p className="text-[#555] text-sm font-mono py-8 text-center">Could not load contribution data.</p>
           ) : (
             <div className="w-full overflow-x-auto no-scrollbar pb-2" style={{ position: 'relative', zIndex: 2 }}>
-              <div className="flex min-w-[630px] sm:min-w-0 items-start">
+              <div className="flex min-w-[630px] sm:min-w-0 items-start" ref={gridRef}>
 
                 {/* Day labels */}
                 <div className="w-8 sm:w-10 pr-2 flex-shrink-0">
@@ -237,20 +252,25 @@ export function BuildHistory() {
                     {weeks.map((week, wi) => (
                       <div key={wi} className="grid gap-[3px]" style={{ gridTemplateRows: 'repeat(7,1fr)' }}>
                         {week.map((day, di) => {
-                          const delay = (wi * 7 + di) * 0.008
+                          // Column-based delay: each week column reveals 30ms after the previous
+                          const colDelay = wi * 0.03
+                          const targetColor = COLORS[day.level]
                           return (
                             <div
                               key={di}
                               title={day.date ? `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}` : undefined}
                               className={[
                                 'w-[10px] h-[10px] sm:w-[13px] sm:h-[13px] rounded-[3px]',
-                                day.date ? 'cursor-help transition-transform duration-150 hover:scale-[1.4] hover:z-30' : '',
-                                day.level === 3 ? 'cell-l3' : '',
-                                day.level === 4 ? 'cell-l4' : '',
+                                day.date ? 'cursor-help hover:scale-[1.4] hover:z-30' : '',
+                                revealed && day.level === 3 ? 'cell-l3' : '',
+                                revealed && day.level === 4 ? 'cell-l4' : '',
                               ].join(' ')}
                               style={{
-                                backgroundColor: COLORS[day.level],
-                                animationDelay: day.level >= 3 ? `${delay}s` : undefined,
+                                backgroundColor: revealed ? targetColor : '#1a1a1a',
+                                transition: revealed
+                                  ? `background-color 400ms cubic-bezier(0.4,0,0.2,1) ${colDelay}s, transform 150ms ease`
+                                  : 'none',
+                                animationDelay: revealed && day.level >= 3 ? `${colDelay + 1.6}s` : undefined,
                               }}
                             />
                           )
