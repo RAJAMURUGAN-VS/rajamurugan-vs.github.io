@@ -1,9 +1,9 @@
 'use client'
 
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
-import { genaiJourneySteps } from '@/data/genai'
+import { genaiJourneySteps, type GenAIStep } from '@/data/genai'
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 
@@ -15,7 +15,7 @@ const headingVariants = {
 const containerVariants = {
   hidden: {},
   visible: {
-    transition: { delayChildren: 0.3, staggerChildren: 0.15 },
+    transition: { delayChildren: 0.5, staggerChildren: 0.3 },
   },
 }
 
@@ -24,13 +24,13 @@ const cardVariants = {
   visible: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.5, ease: [0.16, 1, 0.3, 1] as const },
+    transition: { type: 'spring' as const, stiffness: 60, damping: 18, duration: 0.7 },
   },
 }
 
 const cardVariantsReduced = {
   hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { duration: 0.3 } },
+  visible: { opacity: 1, transition: { duration: 0.4 } },
 }
 
 // ─── Badges ───────────────────────────────────────────────────────────────────
@@ -56,10 +56,7 @@ function DeploymentBadge({ href }: { href: string }) {
 
 function NotebookBadge() {
   return (
-    <span
-      className="inline-block mt-4 text-[12px] font-mono"
-      style={{ color: '#555555' }}
-    >
+    <span className="inline-block mt-4 text-[12px] font-mono" style={{ color: '#555555' }}>
       Learning repo · Hands-on notebooks
     </span>
   )
@@ -78,6 +75,92 @@ function StatusBadge() {
       <span className="w-1.5 h-1.5 rounded-full bg-[#fbbf24] animate-pulse" aria-hidden="true" />
       Currently Learning
     </span>
+  )
+}
+
+// ─── Journey card ─────────────────────────────────────────────────────────────
+
+function JourneyCard({
+  step,
+  activeCardVariants,
+}: {
+  step: GenAIStep
+  activeCardVariants: typeof cardVariants | typeof cardVariantsReduced
+}) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  return (
+    <motion.div
+      variants={activeCardVariants}
+      whileHover={{ y: -6, scale: 1.02 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+      className="flex flex-col rounded-xl p-5"
+      style={{
+        border: isHovered ? '1px solid rgba(110,231,247,0.25)' : '1px solid rgba(255,255,255,0.08)',
+        background: isHovered ? '#131f22' : '#111111',
+        boxShadow: isHovered ? '0 12px 40px rgba(110,231,247,0.07)' : undefined,
+        transition: 'color 0.2s ease, background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
+      }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* Step number */}
+      <span
+        className="font-display font-extrabold mb-4"
+        style={{
+          fontSize: 32,
+          lineHeight: 1,
+          color: isHovered ? 'rgba(110,231,247,0.65)' : 'rgba(110,231,247,0.2)',
+          transition: 'color 0.2s ease',
+        }}
+      >
+        {step.number}
+      </span>
+
+      {/* Title */}
+      <h3
+        className="font-display font-semibold leading-[1.3] mb-3"
+        style={{ fontSize: 16, color: '#f2f2f2' }}
+      >
+        {step.title}
+      </h3>
+
+      {/* Description */}
+      <p
+        className="flex-1"
+        style={{
+          fontSize: 13,
+          lineHeight: 1.7,
+          color: isHovered ? '#aaaaaa' : '#777777',
+          transition: 'color 0.2s ease',
+        }}
+      >
+        {step.description}
+      </p>
+
+      {/* Tags */}
+      <div className="flex flex-wrap gap-1.5 mt-4">
+        {step.tags.map((tag) => (
+          <span
+            key={tag}
+            className="inline-block px-2 py-0.5 rounded text-[11px] font-medium"
+            style={{
+              background: isHovered ? 'rgba(110,231,247,0.08)' : 'rgba(255,255,255,0.05)',
+              border: isHovered ? '1px solid rgba(110,231,247,0.2)' : '1px solid rgba(255,255,255,0.1)',
+              color: isHovered ? '#99dde8' : '#666666',
+              transition: 'color 0.2s ease, background 0.2s ease, border-color 0.2s ease',
+            }}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* Badge */}
+      {step.deploymentUrl && <DeploymentBadge href={step.deploymentUrl} />}
+      {step.isNotebook && <NotebookBadge />}
+      {step.isLearning && <StatusBadge />}
+    </motion.div>
   )
 }
 
@@ -131,61 +214,11 @@ export default function GenAIJourney() {
           animate={isInView ? 'visible' : 'hidden'}
         >
           {genaiJourneySteps.map((step) => (
-            <motion.div
+            <JourneyCard
               key={step.number}
-              variants={activeCardVariants}
-              className="flex flex-col rounded-xl p-5"
-              style={{
-                border: '1px solid rgba(255,255,255,0.08)',
-                background: '#111111',
-              }}
-            >
-              {/* Step number */}
-              <span
-                className="font-display font-extrabold mb-4"
-                style={{ fontSize: 32, color: 'rgba(110,231,247,0.2)', lineHeight: 1 }}
-              >
-                {step.number}
-              </span>
-
-              {/* Title */}
-              <h3
-                className="font-display font-semibold leading-[1.3] mb-3"
-                style={{ fontSize: 16, color: '#f2f2f2' }}
-              >
-                {step.title}
-              </h3>
-
-              {/* Description */}
-              <p
-                className="flex-1"
-                style={{ fontSize: 13, lineHeight: 1.7, color: '#777777' }}
-              >
-                {step.description}
-              </p>
-
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.5 mt-4">
-                {step.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="inline-block px-2 py-0.5 rounded text-[11px] font-medium"
-                    style={{
-                      background: 'rgba(255,255,255,0.05)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      color: '#666666',
-                    }}
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Badge */}
-              {step.deploymentUrl && <DeploymentBadge href={step.deploymentUrl} />}
-              {step.isNotebook && <NotebookBadge />}
-              {step.isLearning && <StatusBadge />}
-            </motion.div>
+              step={step}
+              activeCardVariants={activeCardVariants}
+            />
           ))}
         </motion.div>
 
