@@ -3,7 +3,6 @@ import { Syne, DM_Sans, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
 import LenisProvider from '@/components/shared/LenisProvider'
-import AvailabilityBanner from '@/components/layout/AvailabilityBanner'
 import Nav from '@/components/layout/Nav'
 import { SITE_META } from '@/lib/constants'
 
@@ -43,7 +42,6 @@ export default function RootLayout({
     >
       <body>
         <LenisProvider>
-          <AvailabilityBanner />
           <Nav />
           {children}
         </LenisProvider>
