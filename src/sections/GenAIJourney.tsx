@@ -181,7 +181,7 @@ export default function GenAIJourney() {
       className="px-6 md:px-12 py-24 md:py-32"
       style={{ background: '#080808' }}
     >
-      <div className="max-w-[1200px] mx-auto">
+      <div className="max-w-[1400px] mx-auto">
 
         {/* Heading */}
         <motion.div
@@ -208,7 +208,7 @@ export default function GenAIJourney() {
 
         {/* Cards grid with stagger */}
         <motion.div
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-5"
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5"
           variants={containerVariants}
           initial="hidden"
           animate={isInView ? 'visible' : 'hidden'}
