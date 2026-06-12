@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect, useLayoutEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -9,6 +9,8 @@ import { reactProjects, type ReactProject } from '@/data/reactProjects'
 const PER_PAGE = 12
 const TOTAL = reactProjects.length
 const TOTAL_PAGES = Math.ceil(TOTAL / PER_PAGE)
+const COLS = 4 // matches lg:grid-cols-4
+const PAGE_TRANSITION_MS = 150
 
 const phaseLabels: Record<number, string> = {
   1: 'Phase 1 — React Fundamentals',
@@ -23,36 +25,50 @@ function ProjectCard({
   project,
   priority,
   reduced,
+  delay,
+  revealed,
 }: {
   project: ReactProject
   priority: boolean
   reduced: boolean
+  delay: number
+  revealed: boolean
 }) {
   const num = String(project.id).padStart(2, '0')
 
   return (
-    <a
-      href={project.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="group relative block rounded-xl overflow-hidden bg-[#111111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-      style={{
-        border: '1px solid rgba(255,255,255,0.07)',
-        transition: 'border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease',
-      }}
-      onMouseEnter={(e) => {
-        if (!reduced) {
-          e.currentTarget.style.transform = 'translateY(-3px)'
-          e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)'
-        }
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
-      }}
-      onMouseLeave={(e) => {
-        e.currentTarget.style.transform = ''
-        e.currentTarget.style.boxShadow = ''
-        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+    <motion.div
+      initial={reduced ? false : { opacity: 0, y: 16, scale: 0.97 }}
+      animate={revealed || reduced ? { opacity: 1, y: 0, scale: 1 } : { opacity: 0, y: 16, scale: 0.97 }}
+      transition={reduced ? { duration: 0 } : {
+        type: 'spring',
+        stiffness: 80,
+        damping: 16,
+        delay,
       }}
     >
+      <a
+        href={project.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="group relative block rounded-xl overflow-hidden bg-[#111111] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        style={{
+          border: '1px solid rgba(255,255,255,0.07)',
+          transition: 'border-color 250ms ease, transform 250ms ease, box-shadow 250ms ease',
+        }}
+        onMouseEnter={(e) => {
+          if (!reduced) {
+            e.currentTarget.style.transform = 'translateY(-3px)'
+            e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.5)'
+          }
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = ''
+          e.currentTarget.style.boxShadow = ''
+          e.currentTarget.style.borderColor = 'rgba(255,255,255,0.07)'
+        }}
+      >
       {/* Number badge */}
       <span
         className="absolute top-2 left-2 z-20 font-mono text-[11px] px-2 py-0.5 rounded-sm"
@@ -117,6 +133,7 @@ function ProjectCard({
         </span>
       </div>
     </a>
+    </motion.div>
   )
 }
 
@@ -124,20 +141,74 @@ function ProjectCard({
 
 export default function ReactJourney() {
   const [page, setPage] = useState(1)
+  const [revealed, setRevealed] = useState(false)
   const reduced = useReducedMotion()
+  const headerRef = useRef<HTMLDivElement>(null)
+  const gridRef = useRef<HTMLDivElement>(null)
+  const scrollAfterPageChangeRef = useRef(false)
+  const [gridMinHeight, setGridMinHeight] = useState(0)
+  // Track which pages have already been revealed so re-renders don't re-animate
+  const revealedPages = useRef<Set<number>>(new Set())
+
+  const scrollToHeader = useCallback(() => {
+    headerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
+
+  const scheduleScrollToHeader = useCallback(() => {
+    scrollToHeader()
+    requestAnimationFrame(() => {
+      requestAnimationFrame(scrollToHeader)
+    })
+    window.setTimeout(scrollToHeader, PAGE_TRANSITION_MS + 50)
+  }, [scrollToHeader])
+
+  // Observe grid — reveal once on first scroll into view
+  useEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true)
+          revealedPages.current.add(page)
+          obs.disconnect()
+        }
+      },
+      { threshold: 0.1 }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useLayoutEffect(() => {
+    if (!scrollAfterPageChangeRef.current) return
+    scrollAfterPageChangeRef.current = false
+    scheduleScrollToHeader()
+  }, [page, scheduleScrollToHeader])
+
+  useLayoutEffect(() => {
+    const el = gridRef.current
+    if (!el) return
+    setGridMinHeight(el.offsetHeight)
+  }, [page, revealed])
 
   const startIdx = (page - 1) * PER_PAGE
   const pageProjects = reactProjects.slice(startIdx, startIdx + PER_PAGE)
   const showingEnd = Math.min(startIdx + PER_PAGE, TOTAL)
 
-  const goToPage = (p: number) => {
-    setPage(p)
-    const el = document.getElementById('react-journey')
-    if (el) {
-      const top = el.getBoundingClientRect().top + window.scrollY - 88 - 16
-      window.scrollTo({ top, behavior: 'smooth' })
+  const goToPage = useCallback((p: number) => {
+    if (p < 1 || p > TOTAL_PAGES) return
+
+    if (p !== page) {
+      scrollAfterPageChangeRef.current = true
+      setPage(p)
+      setRevealed(false)
+      window.setTimeout(() => setRevealed(true), 60)
     }
-  }
+
+    scheduleScrollToHeader()
+  }, [page, scheduleScrollToHeader])
 
   return (
     <section
@@ -149,7 +220,7 @@ export default function ReactJourney() {
       <div className="max-w-[1200px] mx-auto">
 
         {/* Section header */}
-        <div className="mb-12">
+        <div ref={headerRef} className="mb-12 scroll-mt-[112px]">
           <span
             className="inline-block text-xs font-semibold uppercase mb-3"
             style={{ letterSpacing: '0.15em', color: '#6EE7F7' }}
@@ -179,25 +250,36 @@ export default function ReactJourney() {
         </div>
 
         {/* Grid with page transition */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={page}
-            initial={{ opacity: 0, y: reduced ? 0 : 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: reduced ? 0 : -8 }}
-            transition={{ duration: 0.25, ease: 'easeOut' }}
-            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5"
-          >
-            {pageProjects.map((p) => (
-              <ProjectCard
-                key={p.id}
-                project={p}
-                priority={page === 1 && p.id <= 4}
-                reduced={reduced}
-              />
-            ))}
-          </motion.div>
-        </AnimatePresence>
+        <div className="relative" style={{ minHeight: gridMinHeight || undefined }}>
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={page}
+              ref={gridRef}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: PAGE_TRANSITION_MS / 1000 }}
+              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5"
+            >
+            {pageProjects.map((p, idx) => {
+              const col = idx % COLS
+              const row = Math.floor(idx / COLS)
+              // Diagonal delay: top-left → bottom-right
+              const diagonalDelay = (col + row) * 0.06
+              return (
+                <ProjectCard
+                  key={p.id}
+                  project={p}
+                  priority={page === 1 && p.id <= 4}
+                  reduced={reduced}
+                  delay={diagonalDelay}
+                  revealed={revealed}
+                />
+              )
+            })}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
         {/* Pagination */}
         <div className="flex flex-col items-center gap-3 mt-10">
