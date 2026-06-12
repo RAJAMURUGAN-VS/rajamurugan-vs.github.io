@@ -88,6 +88,7 @@ export function BuildHistory() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const hasRevealedOnce = useRef(false)
   const sectionRef = useRef(null)
   const gridRef = useRef<HTMLDivElement>(null)
   const isInView = useInView(sectionRef, { once: true, amount: 0.1 })
@@ -95,21 +96,34 @@ export function BuildHistory() {
   useEffect(() => {
     setLoading(true)
     setError(false)
-    setRevealed(false)
 
     const yearParam = selectedYear === 'lastYear' ? 'last' : selectedYear
     fetch(`https://github-contributions-api.jogruber.de/v4/RAJAMURUGAN-VS?y=${yearParam}`)
       .then((r) => { if (!r.ok) throw new Error('failed'); return r.json() })
-      .then((d: ApiResponse) => { setData(d); setLoading(false) })
+      .then((d: ApiResponse) => {
+        setData(d)
+        setLoading(false)
+        if (hasRevealedOnce.current) {
+          // Reset to dark so the left-to-right fill animation replays
+          setRevealed(false)
+          requestAnimationFrame(() => requestAnimationFrame(() => setRevealed(true)))
+        }
+      })
       .catch(() => { setError(true); setLoading(false) })
   }, [selectedYear])
 
-  // Trigger reveal once grid is in view and data is loaded
+  // Trigger reveal only on first load via IntersectionObserver
   useEffect(() => {
-    if (loading || error || !gridRef.current) return
+    if (loading || error || !gridRef.current || hasRevealedOnce.current) return
     const el = gridRef.current
     const obs = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setRevealed(true); obs.disconnect() } },
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setRevealed(true)
+          hasRevealedOnce.current = true
+          obs.disconnect()
+        }
+      },
       { threshold: 0.1 }
     )
     obs.observe(el)
@@ -202,23 +216,13 @@ export function BuildHistory() {
             .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
           `}</style>
 
-          {loading ? (
-            <div className="flex gap-[3px] animate-pulse">
-              {Array.from({ length: 53 }).map((_, wi) => (
-                <div key={wi} className="grid grid-rows-7 gap-[3px]">
-                  {Array.from({ length: 7 }).map((_, di) => (
-                    <div key={di} className="w-[13px] h-[13px] rounded-[3px]" style={{ backgroundColor: '#1a1a1a' }} />
-                  ))}
-                </div>
-              ))}
-            </div>
-          ) : error ? (
+          {error ? (
             <p className="text-[#555] text-sm font-mono py-8 text-center">Could not load contribution data.</p>
           ) : (
             <div className="w-full overflow-x-auto no-scrollbar pb-2" style={{ position: 'relative', zIndex: 2 }}>
               <div className="flex min-w-[630px] sm:min-w-0 items-start" ref={gridRef}>
 
-                {/* Day labels */}
+                {/* Day labels — always static */}
                 <div className="w-8 sm:w-10 pr-2 flex-shrink-0">
                   <div className="h-4 mb-2" />
                   <div className="grid gap-[3px]" style={{ gridTemplateRows: 'repeat(7,1fr)', height: 109 }}>
@@ -231,7 +235,7 @@ export function BuildHistory() {
                 </div>
 
                 <div className="flex-1 flex flex-col">
-                  {/* Month labels */}
+                  {/* Month labels — always static */}
                   <div className="flex gap-[3px] h-4 mb-2 select-none">
                     {weeks.map((_, wi) => {
                       const ml = monthLabels.find((m) => m.wi === wi)
@@ -247,37 +251,49 @@ export function BuildHistory() {
                     })}
                   </div>
 
-                  {/* Cells */}
-                  <div className="flex gap-[3px]">
-                    {weeks.map((week, wi) => (
-                      <div key={wi} className="grid gap-[3px]" style={{ gridTemplateRows: 'repeat(7,1fr)' }}>
-                        {week.map((day, di) => {
-                          // Column-based delay: each week column reveals 30ms after the previous
-                          const colDelay = wi * 0.03
-                          const targetColor = COLORS[day.level]
-                          return (
-                            <div
-                              key={di}
-                              title={day.date ? `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}` : undefined}
-                              className={[
-                                'w-[10px] h-[10px] sm:w-[13px] sm:h-[13px] rounded-[3px]',
-                                day.date ? 'cursor-help hover:scale-[1.4] hover:z-30' : '',
-                                revealed && day.level === 3 ? 'cell-l3' : '',
-                                revealed && day.level === 4 ? 'cell-l4' : '',
-                              ].join(' ')}
-                              style={{
-                                backgroundColor: revealed ? targetColor : '#1a1a1a',
-                                transition: revealed
-                                  ? `background-color 400ms cubic-bezier(0.4,0,0.2,1) ${colDelay}s, transform 150ms ease`
-                                  : 'none',
-                                animationDelay: revealed && day.level >= 3 ? `${colDelay + 1.6}s` : undefined,
-                              }}
-                            />
-                          )
-                        })}
-                      </div>
-                    ))}
-                  </div>
+                  {/* Cells — skeleton while loading, animated grid when ready */}
+                  {loading ? (
+                    <div className="flex gap-[3px] animate-pulse">
+                      {Array.from({ length: 53 }).map((_, wi) => (
+                        <div key={wi} className="grid grid-rows-7 gap-[3px]">
+                          {Array.from({ length: 7 }).map((_, di) => (
+                            <div key={di} className="w-[10px] h-[10px] sm:w-[13px] sm:h-[13px] rounded-[3px]" style={{ backgroundColor: '#1a1a1a' }} />
+                          ))}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex gap-[3px]" key={selectedYear}>
+                      {weeks.map((week, wi) => (
+                        <div key={wi} className="grid gap-[3px]" style={{ gridTemplateRows: 'repeat(7,1fr)' }}>
+                          {week.map((day, di) => {
+                            // Column-based delay: each week column reveals 30ms after the previous
+                            const colDelay = wi * 0.03
+                            const targetColor = COLORS[day.level]
+                            return (
+                              <div
+                                key={di}
+                                title={day.date ? `${day.date}: ${day.count} contribution${day.count !== 1 ? 's' : ''}` : undefined}
+                                className={[
+                                  'w-[10px] h-[10px] sm:w-[13px] sm:h-[13px] rounded-[3px]',
+                                  day.date ? 'cursor-help hover:scale-[1.4] hover:z-30' : '',
+                                  revealed && day.level === 3 ? 'cell-l3' : '',
+                                  revealed && day.level === 4 ? 'cell-l4' : '',
+                                ].join(' ')}
+                                style={{
+                                  backgroundColor: revealed ? targetColor : '#1a1a1a',
+                                  transition: revealed
+                                    ? `background-color 400ms cubic-bezier(0.4,0,0.2,1) ${colDelay}s, transform 150ms ease`
+                                    : 'none',
+                                  animationDelay: revealed && day.level >= 3 ? `${colDelay + 1.6}s` : undefined,
+                                }}
+                              />
+                            )
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
