@@ -24,12 +24,16 @@ export default function Skills() {
           {skillDomains.map((domain, i) => (
             <ScrollReveal key={domain.domain} delay={i * 80} direction="up">
               <div className="flex flex-col gap-4">
-                <h3 className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#555555]">
+                <h3 className="text-[12px] font-semibold uppercase tracking-[0.15em] text-[#aaaaaa]">
                   {domain.domain}
                 </h3>
                 <div className="flex flex-wrap gap-2">
                   {domain.skills.map((skill) => (
-                    <Badge key={skill} label={skill} />
+                    <Badge
+                      key={skill}
+                      label={skill}
+                      className="bg-[rgba(110,231,247,0.08)] border-[rgba(110,231,247,0.2)] text-[#99dde8]"
+                    />
                   ))}
                 </div>
               </div>
