@@ -1,0 +1,266 @@
+# Implementation Plan: Portfolio Website
+
+## Overview
+
+Incremental build of Rajamurugan VS's portfolio from foundation outward — design system and types first, then shared components, then sections top-to-bottom, then animations and polish. Each task produces immediately usable, integrated code. Property-based tests are placed close to their implementation targets.
+
+## Tasks
+
+- [x] 1. Project setup and design system foundation
+  - Initialize Next.js 14 App Router project with TypeScript and Tailwind CSS v3
+  - Configure `tailwind.config.ts` with color tokens (bg, surface, border, accent, muted), font family variables, and extend the default theme
+  - Create `src/app/globals.css` with all CSS custom properties: colors, spacing scale, border radius, typography scale, and font variable references
+  - Install dependencies: `framer-motion`, `lenis`, `lucide-react`, `@next/font` (via `next/font`), `fast-check`, `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, `jsdom`
+  - Configure Vitest with jsdom environment and React Testing Library setup file
+  - Create the full folder structure: `src/components/ui/`, `src/components/layout/`, `src/components/shared/`, `src/sections/`, `src/animations/`, `src/hooks/`, `src/data/`, `src/types/`, `src/lib/`
+  - _Requirements: 1.1–1.7, 19.1–19.2, 19.6_
+
+- [ ] 2. Types, data files, and animation variants
+  - [x] 2.1 Create `src/types/index.ts` with all TypeScript interfaces: `Project`, `SkillDomain`, `TimelineEntry`, `Certification`, `StatItem`, `GenAIStage`, `MarqueeItem`
+    - _Requirements: 6.6, 7.4, 8.4, 9.4, 11.4, 12.4, 19.7_
+  - [x] 2.2 Create all data files with realistic placeholder content:
+    - `src/data/projects.ts` (3–4 featured projects)
+    - `src/data/skills.ts` (domains: Frontend, Backend, AI/ML, DevOps)
+    - `src/data/timeline.ts` (education + milestones)
+    - `src/data/certifications.ts`
+    - `src/data/stats.ts` (problems solved, hackathons, internships, projects)
+    - `src/data/marquee.ts` (tech logos/labels)
+    - `src/data/genai.ts` (GenAI progression stages)
+    - _Requirements: 6.1, 6.6, 9.1–9.2, 19.7_
+  - [x] 2.3 Create `src/animations/variants.ts` with Framer Motion variant objects: `fadeUpVariant`, `slideInLeftVariant`, `slideInRightVariant`, `staggerContainer`, `wordVariant`, `noMotionVariant`
+    - All variants use expo ease-out `[0.16, 1, 0.3, 1]` and 600ms duration
+    - `staggerContainer` uses `staggerChildren: 0.1`
+    - `noMotionVariant` has identical `hidden`/`visible` states (no transforms)
+    - _Requirements: 15.1–15.2_
+  - [ ]* 2.4 Write unit tests for animation variants
+    - Verify `fadeUpVariant.hidden` has `opacity: 0` and `y: 30`
+    - Verify `fadeUpVariant.visible.transition.duration` is `0.6`
+    - Verify `staggerContainer.visible.transition.staggerChildren` is in range [0.08, 0.12]
+    - Verify `noMotionVariant.hidden` equals `noMotionVariant.visible` (no transforms)
+    - _Requirements: 15.1–15.2_
+
+- [ ] 3. Shared utility components
+  - [x] 3.1 Create `src/hooks/useReducedMotion.ts` (wraps Framer Motion's `useReducedMotion`)
+    - Create `src/hooks/useMousePosition.ts` (tracks `mousemove` on a ref element)
+    - Create `src/hooks/useMediaQuery.ts` (returns boolean for a CSS media query string)
+    - Create `src/lib/utils.ts` with `cn` class-merge utility and contrast ratio calculator
+    - _Requirements: 15.6, 4.5–4.6_
+  - [x] 3.2 Create `src/components/ui/Button.tsx`
+    - Polymorphic: renders `<button>` by default, `<a>` when `href` is provided
+    - Variants: `primary` (accent background), `secondary` (ghost with accent border), `ghost`
+    - Sizes: `sm`, `md`, `lg`
+    - Includes `focus-visible` ring styling for keyboard accessibility
+    - All interactive elements have `tabIndex` and visible focus indicators
+    - _Requirements: 3.4, 13.2, 17.3_
+  - [x] 3.3 Create `src/components/ui/Badge.tsx`, `src/components/ui/Card.tsx`, `src/components/ui/SectionLabel.tsx`
+    - `Badge`: small label with accent or default variant, `data-testid="badge"`
+    - `Card`: base card with `translateY(-4px)` hover lift via Tailwind `group-hover` or direct Framer Motion
+    - `SectionLabel`: small eyebrow text above section headings
+    - _Requirements: 6.5, 9.3, 12.3_
+  - [x] 3.4 Create `src/components/shared/ScrollReveal.tsx`
+    - Uses Framer Motion `whileInView` with `viewport={{ once: true, margin: "-100px" }}`
+    - Accepts `delay` prop (default 0), `direction` prop (`up` | `left` | `right`)
+    - Reads `useReducedMotion` and applies `noMotionVariant` when true
+    - _Requirements: 15.1, 15.6_
+  - [ ]* 3.5 Write property test for ScrollReveal reduced motion (Property 9)
+    - **Property 9: Reduced motion disables transforms**
+    - Mock `useReducedMotion` to return `true`; for any valid `ScrollReveal` children, assert `hidden` and `visible` variant states have no `y`, `x`, or `opacity` delta
+    - **Validates: Requirements 15.6, 17.5**
+    - _Tag: Feature: portfolio-website, Property 9_
+
+- [ ] 4. Layout components (Nav, Footer, AvailabilityBanner) and app shell
+  - [x] 4.1 Create `src/app/layout.tsx`
+    - Load Syne, DM Sans, JetBrains Mono via `next/font/google` with CSS variable injection
+    - Apply font variable classNames to `<html>` element
+    - Wrap children in `LenisProvider` client component
+    - Include `<AvailabilityBanner />` and `<Nav />` as top-level layout children
+    - _Requirements: 1.3, 16.4, 3.1, 19.4_
+  - [x] 4.2 Create `src/components/layout/AvailabilityBanner.tsx`
+    - "use client" — local `useState` for dismissed state
+    - Renders pulsing green dot indicator + "Currently open to internships" text
+    - Dismiss button hides banner and reclaims vertical space (no CLS — use conditional render, not `visibility: hidden`)
+    - _Requirements: 2.1–2.3_
+  - [x] 4.3 Create `src/components/layout/Nav.tsx`
+    - "use client" — subscribes to Lenis scroll events to toggle `scrolled` state at 50px threshold
+    - Transparent background when `scrolled=false`, `bg-[#080808]/90 backdrop-blur-md` when `scrolled=true`
+    - Background transition within 300ms via Tailwind `transition-all duration-300`
+    - Includes anchor links for all major sections and a "Hire Me" CTA Button
+    - _Requirements: 3.1–3.6_
+  - [x] 4.4 Create `src/components/layout/Footer.tsx`
+    - Three-column layout: name (left), social links with Lucide icons (center), "Built with Next.js" (right)
+    - _Requirements: 14.1–14.2_
+  - [ ]* 4.5 Write unit tests for Nav and AvailabilityBanner
+    - Nav: assert transparent class at scroll=0, dark class at scroll>50
+    - Banner: assert banner visible on mount; assert banner hidden after dismiss button click
+    - _Requirements: 2.2, 3.2–3.3_
+
+- [ ] 5. Hero section and word animation
+  - [x] 5.1 Create `src/components/shared/AnimatedText.tsx`
+    - Splits `text` prop on whitespace into an array of words
+    - Wraps each word in a `<motion.span>` using `wordVariant` and `staggerContainer`
+    - Respects `useReducedMotion`
+    - _Requirements: 4.2, 15.2_
+  - [ ]* 5.2 Write property test for AnimatedText word splitting (Property 1)
+    - **Property 1: AnimatedText word splitting**
+    - For any non-empty string, the number of rendered word spans equals the number of whitespace-separated tokens
+    - **Validates: Requirements 4.2**
+    - _Tag: Feature: portfolio-website, Property 1_
+  - [x] 5.3 Create `src/sections/Hero.tsx`
+    - Full viewport height (`min-h-screen`)
+    - Uses `AnimatedText` for the headline
+    - Includes name, role, value proposition, and two Button CTAs
+    - Implements mouse parallax via `useMousePosition` hook on a decorative background element
+    - Mouse parallax guarded by `useMediaQuery('(pointer: fine)')` check
+    - _Requirements: 4.1–4.6_
+  - [ ]* 5.4 Write unit test for Hero
+    - Assert both CTA buttons ("View Projects", "Download Resume") are rendered
+    - _Requirements: 4.4_
+
+- [ ] 6. Tech Credibility Marquee
+  - [x] 6.1 Create `src/components/shared/Marquee.tsx`
+    - Renders items array duplicated (items + items) inside a single flex container
+    - Applies `marquee` CSS keyframe animation to the track element
+    - Pause-on-hover via `animation-play-state: paused` on `:hover`
+    - Reduced motion: removes animation class when `prefers-reduced-motion: reduce`
+    - _Requirements: 5.1–5.5, 15.4_
+  - [ ]* 6.2 Write property test for Marquee item duplication (Property 2)
+    - **Property 2: Marquee item duplication**
+    - For any array of N items, the rendered track contains exactly 2N item elements
+    - **Validates: Requirements 5.5**
+    - _Tag: Feature: portfolio-website, Property 2_
+  - [x] 6.3 Create `src/sections/TechMarquee.tsx`
+    - Imports `marqueeItems` from data file
+    - Renders `<Marquee>` with the tech/institution items
+    - _Requirements: 5.1–5.3_
+
+- [ ] 7. Featured Projects section
+  - [x] 7.1 Create `src/sections/ProjectCard.tsx`
+    - Displays project title, description, tech stack badges (using `Badge`), and links (live/GitHub)
+    - Hover lift animation (`translateY(-4px)`) via Framer Motion `whileHover`
+    - Uses `next/image` with explicit `width`/`height` and descriptive `alt` text from project data
+    - _Requirements: 6.4–6.5, 16.5, 17.1_
+  - [ ]* 7.2 Write property test for ProjectCard field rendering (Property 4)
+    - **Property 4: ProjectCard renders all required fields**
+    - For any valid `Project` object, rendered output contains title, description, each tech stack item, and at least one link
+    - **Validates: Requirements 6.4**
+    - _Tag: Feature: portfolio-website, Property 4_
+  - [ ]* 7.3 Write property test for project alt text (Property 10)
+    - **Property 10: Non-decorative images have non-empty alt text**
+    - For any `Project` with an `imageUrl`, the rendered `img` element has a non-empty `alt` attribute
+    - **Validates: Requirements 17.1**
+    - _Tag: Feature: portfolio-website, Property 10_
+  - [x] 7.4 Create `src/sections/Projects.tsx`
+    - Imports `projects` data, filters by `featured: true`
+    - Alternating layout: even indices get `slideInLeft`, odd indices get `slideInRight` via `ScrollReveal direction` prop
+    - Wraps each row in `ScrollReveal` for scroll-triggered slide-in
+    - Mobile: single-column stacked layout via Tailwind responsive classes
+    - _Requirements: 6.1–6.3, 18.3_
+  - [ ]* 7.5 Write property test for project slide direction (Property 3)
+    - **Property 3: Project slide direction by index**
+    - For any array of projects, index i gets `left` direction when i is even, `right` when i is odd
+    - **Validates: Requirements 6.3**
+    - _Tag: Feature: portfolio-website, Property 3_
+
+- [ ] 8. Checkpoint — ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 9. GenAI Progression Arc, Impact Stats, and Skills sections
+  - [x] 9.1 Create `src/sections/GenAIJourney.tsx`
+    - Imports `genAIStages` from data file
+    - Horizontal connected-stage layout on desktop, vertical on mobile
+    - Each stage wrapped in `ScrollReveal` with progressive stagger delays
+    - _Requirements: 7.1–7.4_
+  - [x] 9.2 Create `src/components/shared/CountUp.tsx`
+    - "use client" — uses Framer Motion `useInView` to detect viewport entry
+    - Starts `requestAnimationFrame` loop on viewport entry, increments value with easing over `duration` ms
+    - Displays final `end` value once animation completes
+    - _Requirements: 8.2–8.3_
+  - [ ]* 9.3 Write property test for CountUp (Property 5)
+    - **Property 5: CountUp reaches final value**
+    - For any integer `end` ≥ 0 and positive `duration`, the displayed value equals `end` after `duration` ms (using Vitest fake timers)
+    - **Validates: Requirements 8.2, 8.3**
+    - _Tag: Feature: portfolio-website, Property 5_
+  - [x] 9.4 Create `src/sections/ImpactStats.tsx`
+    - Imports `stats` from data file
+    - Renders `CountUp` for each stat in a 2×2 (mobile) / 4-column (desktop) grid
+    - _Requirements: 8.1–8.4_
+  - [x] 9.5 Create `src/sections/Skills.tsx`
+    - Imports `skillDomains` from data file
+    - Groups skills by domain with a domain heading above each group
+    - Renders each skill as a `Badge` component
+    - _Requirements: 9.1–9.4_
+  - [ ]* 9.6 Write property test for Skills Badge rendering (Property 6)
+    - **Property 6: Skills rendered as Badge components**
+    - For any array of `SkillDomain` objects, every skill string is rendered inside a `Badge` component
+    - **Validates: Requirements 9.3**
+    - _Tag: Feature: portfolio-website, Property 6_
+
+- [ ] 10. About, Timeline, and Certifications sections
+  - [x] 10.1 Create `src/sections/About.tsx`
+    - Short personal statement (3–4 paragraphs max)
+    - Wrapped in `ScrollReveal`
+    - _Requirements: 10.1–10.2_
+  - [x] 10.2 Create `src/sections/Timeline.tsx`
+    - Imports `timelineEntries` from data file
+    - Vertical layout with date, title, organization, description per entry
+    - Each entry wrapped in `ScrollReveal`
+    - Uses semantic `<time>` element for date values
+    - _Requirements: 11.1–11.4_
+  - [ ]* 10.3 Write property test for Timeline entry rendering (Property 7)
+    - **Property 7: TimelineEntry renders all required fields**
+    - For any `TimelineEntry`, rendered output contains period, title, organization, and description
+    - **Validates: Requirements 11.2**
+    - _Tag: Feature: portfolio-website, Property 7_
+  - [x] 10.4 Create `src/sections/Certifications.tsx`
+    - Imports `certifications` from data file
+    - Card grid layout (2-col mobile, 3-col desktop)
+    - Each card shows name, issuer, date with hover lift
+    - _Requirements: 12.1–12.4_
+  - [ ]* 10.5 Write property test for Certification card rendering (Property 8)
+    - **Property 8: Certification card renders all required fields**
+    - For any `Certification`, rendered card contains name, issuer, and date
+    - **Validates: Requirements 12.2**
+    - _Tag: Feature: portfolio-website, Property 8_
+
+- [ ] 11. Contact section and page assembly
+  - [x] 11.1 Create `src/sections/Contact.tsx`
+    - "Let's Build Something" heading
+    - "Send Message" button (mailto: or form) and "Download Resume" `<a href="/resume.pdf" download>` button
+    - Email address and social links (LinkedIn, GitHub) with Lucide icons
+    - _Requirements: 13.1–13.4_
+  - [ ]* 11.2 Write unit test for Contact section
+    - Assert Download Resume button has `href="/resume.pdf"` and `download` attribute
+    - _Requirements: 13.3_
+  - [x] 11.3 Assemble `src/app/page.tsx`
+    - Import and compose all sections in order: Hero, TechMarquee, Projects, GenAIJourney, ImpactStats, Skills, About, Timeline, Certifications, Contact
+    - Each section wrapped in a `<section>` element with an `id` matching the nav anchor
+    - Use `<main>` as the outer wrapper with semantic structure
+    - _Requirements: 3.5–3.6, 17.4, 19.6_
+  - [ ]* 11.4 Write accessibility unit tests
+    - Assert color contrast ratio of `#e8e8e8` on `#080808` is ≥ 4.5:1 (computed via `src/lib/utils.ts`)
+    - Assert all Button components render with `tabIndex` not `-1` and have `focus-visible` CSS class present
+    - _Requirements: 17.2–17.3_
+
+- [ ] 12. Responsiveness and mobile navigation
+  - [x] 12.1 Audit all sections for mobile responsiveness
+    - Verify all sections use mobile-first Tailwind breakpoints (`sm:`, `md:`, `lg:`)
+    - Projects section: confirm single-column stacked layout at `< md` breakpoints
+    - Skills grid: confirm wrapping layout on small screens
+    - Impact Stats: confirm 2×2 grid on mobile, 4-column on desktop
+    - _Requirements: 18.1–18.3_
+  - [x] 12.2 Implement mobile navigation in `Nav.tsx`
+    - Add hamburger icon (Lucide `Menu`) that toggles a mobile drawer/menu on `< md` viewports
+    - Drawer contains all section anchor links
+    - _Requirements: 18.4_
+
+- [x] 13. Final checkpoint — ensure all tests pass
+  - Ensure all tests pass, ask the user if questions arise.
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for a faster MVP
+- Add `public/resume.pdf` before deployment for the download button to work
+- All animations use `transform` and `opacity` only — no layout-triggering properties
+- `next/image` must have explicit `width`/`height` on every usage to prevent CLS
+- Property tests use fast-check with minimum 100 iterations per test
+- Unit tests focus on specific examples, edge cases, and error conditions
