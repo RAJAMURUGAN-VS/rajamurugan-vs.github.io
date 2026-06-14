@@ -1,0 +1,266 @@
+{
+  "categories": [
+    {
+      "id": "hackathons",
+      "title": "Hackathons",
+      "certificates": [
+        {
+          "id": "vel-idea-forage-hackathon-2025",
+          "title": "VEL IDEA FORAGE Hackathon",
+          "issuer": "VEL Tech",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771261400/VEL-TECH_HACKATHON__page-0001_bnv1i8.jpg",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "icube-national-hackathon-finalist-2025",
+          "title": "iCUBE National Hackathon Finalist",
+          "issuer": "SVCE",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771261398/ICUBE_SVCE_HACKATHON_page-0001_cfeicg.jpg",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "gravitas-code-to-create-vit-2025",
+          "title": "Code To Create - graVITas'25",
+          "issuer": "VIT",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771261399/CodeToCreate_VIT_Hackathon_page-0001_kwwtto.jpg",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "srm-hackelite-hackathon-2026",
+          "title": "Hackelite Hackathon",
+          "issuer": "SRMIST",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771261399/SRM_HACKELITE_HACKATHON_page-0001_od5nud.jpg",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "openai-nxtwave-buildathon-2025",
+          "title": "OpenAI X NxtWave Regional Buildathon",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771261398/Nxtwave_OpenAI_HACKATHON_page-0001_xbol2s.jpg",
+          "credentialUrl": null,
+          "skills": []
+        }
+      ]
+    },
+    {
+      "id": "nxtwave-certifications",
+      "title": "NxtWave Certifications",
+      "certificates": [
+        {
+          "id": "build-static-website-nxtwave-2025",
+          "title": "Build Your Own Static Website",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/BUID_YOUR_STATIC_WEBSITE_NXTWAVE_CERTIFICATE_page-0001_blcdtf.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/static-website?id=QOXEUDNBNX",
+          "skills": [
+            "Basics of HTML5, CSS3",
+            "CSS Box Model",
+            "Introduction of Bootstrap and Flex Layout",
+            "Bootstrap Utility Classes and Components",
+            "Website Layout Development"
+          ]
+        },
+        {
+          "id": "build-responsive-website-nxtwave-2025",
+          "title": "Build Your Own Responsive Website",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/BUILD_YOUR_RESPONSIVE_WEBSITE_NXTWAVE_CERTIFICATE_page-0001_nukwud.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/build-your-own-responsive-website?id=WNXMCIUVFL",
+          "skills": [
+            "Bootstrap Grid System",
+            "CSS Specificity",
+            "CSS Cascading and Inheritance",
+            "Bootstrap Flex Utilities"
+          ]
+        },
+        {
+          "id": "introduction-to-databases-nxtwave-2025",
+          "title": "Introduction to Databases",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/INTRODUCTION_TO_DATABASES_NXTWAVE_CERTIFICATE_page-0001_p4xles.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/introduction-to-databases?id=BXJYPZTVXZ",
+          "skills": [
+            "Querying with SQL",
+            "Aggregations and Group By",
+            "Modelling Database",
+            "Joins",
+            "Views and Subqueries"
+          ]
+        },
+        {
+          "id": "programming-foundations-python-nxtwave-2025",
+          "title": "Programming Foundations with Python",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311087/PROGRAMMING_FOUNDATION_WITH_PYTHON_NXTWAVE_page-0001_la6jfn.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/programming-foundations-with-python?id=UYEEUUHXJR",
+          "skills": [
+            "Loops & Conditionals",
+            "Lists, Tuples & Sets",
+            "Dictionaries",
+            "Functions & Recursion",
+            "OOP Concepts"
+          ]
+        },
+        {
+          "id": "dynamic-web-application-nxtwave-2025",
+          "title": "Build Your Own Dynamic Web Application",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/BILD_YOUR_WON_DYNAMIC_WEB_APPLICATION_NXTWAVE_page-0001_vkmsco.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/dynamic-web-application?id=DUYVSEHIKJ",
+          "skills": [
+            "Introduction to JS & variables",
+            "Arrays and objects",
+            "Fetch & Callback",
+            "Building Wikipedia Search Application",
+            "DOM & Event Fundamentals",
+            "JSON & Local Storage",
+            "Forms",
+            "Conditionals and Loops"
+          ]
+        },
+        {
+          "id": "javascript-essentials-nxtwave-2025",
+          "title": "JavaScript Essentials",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/JAVASCRIPT_ESSENTIALS_NXTWAVE_page-0001_vodzk4.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/javascript-essentials?id=MWOFACXQWY",
+          "skills": [
+            "Factory and Constructor",
+            "Prototype and classes",
+            "Asynchronous JS",
+            "Scope & Hoisting",
+            "Array methods"
+          ]
+        },
+        {
+          "id": "responsive-design-flexbox-nxtwave-2025",
+          "title": "Responsive Web Design using Flexbox",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311087/RESPONSIVE_DESIGN_UGING_FLEX_BOX_NXTWAVE_page-0001_xjfnba.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/responsive-web-design-using-flexbox?id=VMBKFGECQY",
+          "skills": [
+            "CSS Flexbox",
+            "CSS Media Queries",
+            "CSS Box Sizing",
+            "Developing Responsive Layouts"
+          ]
+        },
+        {
+          "id": "developer-foundations-nxtwave-2025",
+          "title": "Developer Foundations",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311086/DEVELOPER_FOUNDATIONS_NXTWAVE_page-0001_g2a6ll.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/developer-foundations?id=IWQTWUMJFB",
+          "skills": [
+            "Fundamentals of Computer Science",
+            "Work with command line",
+            "Collaborating with Git"
+          ]
+        },
+        {
+          "id": "nodejs-nxtwave-2025",
+          "title": "Node.js Certification",
+          "issuer": "NxtWave",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771311087/NODE.JS_NXTWAVE_CERTIFICATE_page-0001_cicmw4.jpg",
+          "credentialUrl": "https://certificates.ccbp.in/academy/node-js?id=OIYLMNFLSG",
+          "skills": [
+            "Modules in Node.js",
+            "HTTP Server",
+            "ExpressJS Server Framework",
+            "CRUD API's",
+            "ExpressJS Middlewares",
+            "JSON Web Token",
+            "Secure API's"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "workshops",
+      "title": "Workshops",
+      "certificates": [
+        {
+          "id": "generative-ai-workshop-2-2024",
+          "title": "Generative AI Workshop 2.0",
+          "issuer": "NXTWAVE",
+          "year": "18-Sep-2024",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427392/Screenshot_2026-02-18_203706_fzykaz.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "nxtcode-7-under-7-challenge-2024",
+          "title": "NxtCode 7 Under 7 Challenge",
+          "issuer": "NXTWAVE",
+          "year": "1-Oct-2024",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427393/Screenshot_2026-02-18_203542_ejjlae.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "growth-cycle-1-buildathon-2024",
+          "title": "Growth Cycle 1 BuildAThon",
+          "issuer": "NXTWAVE",
+          "year": "5-Nov-2024",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427392/Screenshot_2026-02-18_203338_ckj0qv.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "ui-ux-mega-workshop-2024",
+          "title": "UI/UX Mega Workshop",
+          "issuer": "NXTWAVE",
+          "year": "25-Dec-2024",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427392/Screenshot_2026-02-18_203157_bdbpv5.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "mcp-mega-workshop-2025",
+          "title": "MCP Mega Workshop",
+          "issuer": "NXTWAVE",
+          "year": "9-Aug-2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427392/MCP_WORKSHOP_fbynp5.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "genai-mastery-workshop-2025",
+          "title": "GenAI Mastery Workshop",
+          "issuer": "NXTWAVE",
+          "year": "15-Sep-2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771427392/Make_AI_AUTOMATION_WORKSHOP_page-0001_usynxc.jpg",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "make-automation-workshop-2025",
+          "title": "Make Automation Workshop",
+          "issuer": "NXTWAVE",
+          "year": "15-Sep-2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1771428448/Screenshot_2026-02-18_205648_n2maqs.png",
+          "credentialUrl": null,
+          "skills": []
+        }
+      ]
+    }
+  ]
+}

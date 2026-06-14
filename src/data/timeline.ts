@@ -2,43 +2,59 @@ import { TimelineEntry } from '@/types'
 
 export const timelineEntries: TimelineEntry[] = [
   {
-    period: '2021 – 2025',
-    title: 'B.Tech Computer Science & Engineering',
+    period: '2023 – Present',
+    title: 'Computer Science Engineering',
     organization: 'RMD Engineering College',
     description:
-      'Pursuing a four-year undergraduate programme in Computer Science with a focus on software engineering, data structures, and machine learning. Consistent academic performer with active participation in college tech fests and coding clubs.',
+      'Started my Computer Science journey, building strong foundations in programming, software engineering, databases, and problem-solving while actively participating in technical events and hands-on projects.',
     type: 'education',
   },
   {
+    period: '2023 - Present',
+    title: 'Started Full Stack Development',
+    organization: 'NxtWave CCBP 4.0 Academy',
+    description:
+      'Began a structured learning path covering HTML, CSS, Bootstrap, JavaScript, Python, SQL, Git, React, and Node.js. Built multiple responsive and dynamic web applications through project-based learning.',
+    type: 'milestone',
+  },
+  {
     period: '2023 – 2024',
-    title: 'Full Stack Developer Intern',
-    organization: 'NxtWave',
+    title: 'Built Real-World Web Applications',
+    organization: 'Personal & Academic Projects',
     description:
-      'Completed an intensive full-stack development internship building production-grade React and Node.js applications. Gained hands-on experience with RESTful APIs, SQL databases, and deployment pipelines while shipping features used by thousands of students.',
-    type: 'milestone',
-  },
-  {
-    period: '2023',
-    title: 'Hackathon Winner — Smart India Hackathon',
-    organization: 'Government of India',
-    description:
-      'Led a six-member team to build an AI-driven disaster-response coordination tool within 36 hours. Won the national-level problem statement under the Ministry of Home Affairs track, competing against 400+ teams.',
+      'Developed static, responsive, and dynamic web applications including tourism websites, e-commerce experiences, chatbot applications, search tools, and interactive JavaScript projects.',
     type: 'milestone',
   },
   {
     period: '2024',
-    title: 'AegisClaim — AI Insurance Platform',
-    organization: 'Personal Project',
+    title: 'Web Development Internships',
+    organization: 'CodSoft & Prodigy InfoTech',
     description:
-      'Designed and shipped AegisClaim, a multi-agent GenAI system for end-to-end insurance claims processing. First production deployment of a LangGraph-based agentic pipeline handling real document ingestion and adjudication workflows.',
+      'Completed web development internships focused on responsive user interfaces, frontend engineering practices, and practical software development workflows.',
     type: 'milestone',
   },
   {
     period: '2024',
-    title: 'Finalist — HackWithInfy Infosys Hackathon',
-    organization: 'Infosys',
+    title: 'Hackathons & Innovation Challenges',
+    organization: 'National-Level Competitions',
     description:
-      'Reached the national finals of HackWithInfy, one of India\'s largest student hackathons, with a real-time campus safety alert system built on React, Node.js, and AWS SNS. Competed among the top 50 teams from 80,000+ registrants.',
+      'Participated in hackathons including iCUBE, VEL IDEA FORAGE, and other innovation events, collaborating with teams to solve real-world challenges through technology.',
+    type: 'milestone',
+  },
+  {
+    period: '2025 – Present',
+    title: 'Generative AI & Agentic Workflows',
+    organization: 'Independent Learning & Development',
+    description:
+      'Exploring LLMs, LangChain, LangGraph, AI agents, RAG systems, and modern GenAI architectures while building intelligent applications and automation workflows.',
+    type: 'milestone',
+  },
+  {
+    period: 'Future',
+    title: 'Full Stack & GenAI Engineer',
+    organization: 'Building for Impact',
+    description:
+      'Focused on creating impactful products, contributing to innovative teams, and building the next generation of AI-powered software systems.',
     type: 'milestone',
   },
 ]

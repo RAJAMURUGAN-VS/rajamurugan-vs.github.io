@@ -36,10 +36,10 @@ export default function Timeline() {
                   aria-hidden="true"
                 />
 
-                <div className="flex flex-col gap-1.5">
+                <div className="flex flex-col gap-1.5 mb-8">
                   <time
                     dateTime={entry.period}
-                    className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#555555]"
+                    className="text-[12px] font-medium uppercase tracking-[0.1em] text-[#99dde8]"
                   >
                     {entry.period}
                   </time>
@@ -49,7 +49,7 @@ export default function Timeline() {
                   <p className="text-[14px] font-medium text-accent">
                     {entry.organization}
                   </p>
-                  <p className="text-[14px] leading-[1.7] text-[#777777]">
+                  <p className="text-[14px] leading-[1.7] text-[#aaaaaa]">
                     {entry.description}
                   </p>
                 </div>
