@@ -32,7 +32,7 @@ import {
 } from "@tabler/icons-react";
 
 // Sound sprite definitions from config.json [startMs, durationMs]
-const SOUND_DEFINES_DOWN: Record<string, [number, number]> = {
+export const SOUND_DEFINES_DOWN: Record<string, [number, number]> = {
   Escape: [2894, 113], F1: [3610, 98], F2: [4210, 90], F3: [4758, 90],
   F4: [5250, 100], F5: [5831, 105], F6: [6396, 105], F7: [6900, 105],
   F8: [7443, 111], F9: [7955, 91], F10: [8504, 105], F11: [9046, 94],
@@ -58,7 +58,7 @@ const SOUND_DEFINES_DOWN: Record<string, [number, number]> = {
   ArrowLeft: [49837, 88], ArrowDown: [50333, 90], ArrowRight: [50783, 111],
 };
 
-const SOUND_DEFINES_UP: Record<string, [number, number]> = {
+export const SOUND_DEFINES_UP: Record<string, [number, number]> = {
   Escape: [3014, 100], F1: [3710, 90], F2: [4305, 80], F3: [4853, 80],
   F4: [5355, 90], F5: [5941, 95], F6: [6506, 95], F7: [7010, 95],
   F8: [7558, 100], F9: [8050, 80], F10: [8614, 95], F11: [9146, 85],
