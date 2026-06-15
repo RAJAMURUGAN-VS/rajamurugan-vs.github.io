@@ -1,7 +1,16 @@
+'use client'
+
+import React, { useState, useRef, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Mail } from 'lucide-react'
+import { LampContainer } from '@/components/ui/lamp'
+import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input'
+import { Keypad } from '@/components/ui/keyboard'
 import { ScrollReveal } from '@/components/shared/ScrollReveal'
 import { Button } from '@/components/ui/Button'
 import { SITE_META } from '@/lib/constants'
-import { Mail } from 'lucide-react'
+
+/* ── Icon components ────────────────────────────────────────────── */
 
 function GitHubIcon({ size = 18 }: { size?: number }) {
   return (
@@ -19,82 +28,428 @@ function LinkedInIcon({ size = 18 }: { size?: number }) {
   )
 }
 
+/* ── Typewriter placeholders ────────────────────────────────────── */
+
+const INPUT_PLACEHOLDERS = [
+  "Open to internships — let's connect.",
+  "Have a project idea? Tell me about it.",
+  "Looking for a GenAI engineer?",
+  "Want to collaborate on something real?",
+  "Drop your email or message here…",
+]
+
+/* ── Key code → character mapping ───────────────────────────────── */
+
+function keyCodeToChar(keyCode: string, shifted: boolean): string | null {
+  // Letters
+  if (keyCode.startsWith('Key')) {
+    const letter = keyCode.slice(3)
+    return shifted ? letter.toUpperCase() : letter.toLowerCase()
+  }
+  // Digits row
+  const digitMap: Record<string, [string, string]> = {
+    Digit1: ['1','!'], Digit2: ['2','@'], Digit3: ['3','#'], Digit4: ['4','$'],
+    Digit5: ['5','%'], Digit6: ['6','^'], Digit7: ['7','&'], Digit8: ['8','*'],
+    Digit9: ['9','('], Digit0: ['0',')'],
+  }
+  if (digitMap[keyCode]) return digitMap[keyCode][shifted ? 1 : 0]
+  // Symbols
+  const symMap: Record<string, [string, string]> = {
+    Minus:        ['-','_'], Equal:       ['=','+'],
+    BracketLeft:  ['[','{'], BracketRight:[']','}'],
+    Backslash:    ['\\','|'], Semicolon:  [';',':'],
+    Quote:        ["'",'"'],  Comma:      [',','<'],
+    Period:       ['.', '>'], Slash:      ['/','?'],
+    Backquote:    ['`','~'],
+  }
+  if (symMap[keyCode]) return symMap[keyCode][shifted ? 1 : 0]
+  if (keyCode === 'Space') return ' '
+  return null
+}
+
+/* ── Inline keyboard + input panel ─────────────────────────────── */
+
+function KeyboardPanel({
+  inputRef,
+  onInputChange,
+}: {
+  inputRef: React.RefObject<HTMLInputElement | null>
+  onInputChange: (val: string) => void
+}) {
+  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set())
+  const isShifted = pressedKeys.has('ShiftLeft') || pressedKeys.has('ShiftRight')
+
+  const handleKeyDown = useCallback((keyCode: string) => {
+    setPressedKeys(prev => new Set(prev).add(keyCode))
+
+    const input = inputRef.current
+    if (!input) return
+
+    if (keyCode === 'Backspace') {
+      const start = input.selectionStart ?? input.value.length
+      const end = input.selectionEnd ?? input.value.length
+      let newVal: string
+      if (start !== end) {
+        newVal = input.value.slice(0, start) + input.value.slice(end)
+        input.value = newVal
+        input.setSelectionRange(start, start)
+      } else if (start > 0) {
+        newVal = input.value.slice(0, start - 1) + input.value.slice(start)
+        input.value = newVal
+        input.setSelectionRange(start - 1, start - 1)
+      } else {
+        return
+      }
+      onInputChange(input.value)
+      input.dispatchEvent(new Event('input', { bubbles: true }))
+      return
+    }
+
+    if (keyCode === 'Enter') {
+      input.form?.requestSubmit()
+      return
+    }
+
+    // Shift/Caps/modifier keys — no character output
+    if (['ShiftLeft','ShiftRight','CapsLock','ControlLeft','AltLeft',
+         'MetaLeft','MetaRight','AltRight','Fn','Tab','Escape',
+         ...Array.from({length:12},(_,i)=>`F${i+1}`)].includes(keyCode)) return
+
+    const currentShifted = pressedKeys.has('ShiftLeft') || pressedKeys.has('ShiftRight') || keyCode === 'ShiftLeft' || keyCode === 'ShiftRight'
+    const char = keyCodeToChar(keyCode, currentShifted)
+    if (!char) return
+
+    const start = input.selectionStart ?? input.value.length
+    const end = input.selectionEnd ?? input.value.length
+    const newVal = input.value.slice(0, start) + char + input.value.slice(end)
+    input.value = newVal
+    input.setSelectionRange(start + char.length, start + char.length)
+    onInputChange(input.value)
+    input.dispatchEvent(new Event('input', { bubbles: true }))
+  }, [inputRef, onInputChange, pressedKeys])
+
+  const handleKeyUp = useCallback((keyCode: string) => {
+    setPressedKeys(prev => { const n = new Set(prev); n.delete(keyCode); return n })
+  }, [])
+
+  return (
+    <div className="w-full overflow-x-auto pb-2 pt-1">
+      {/* Hint */}
+      <p className="text-center text-[11px] font-mono text-[#2a2a2a] uppercase tracking-[0.18em] mb-3 select-none">
+        Try it — click or type
+      </p>
+      {/* Scale down keyboard to fit without scrolling */}
+      <div className="flex justify-center">
+        <div className="[zoom:0.62] sm:[zoom:0.75] md:[zoom:0.9] lg:[zoom:1]">
+          <KeypadWired
+            pressedKeys={pressedKeys}
+            isShifted={isShifted}
+            onKeyDown={handleKeyDown}
+            onKeyUp={handleKeyUp}
+          />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Wired Keypad — passes press state down to keys ─────────────── */
+
+function KeypadWired({
+  pressedKeys,
+  isShifted,
+  onKeyDown,
+  onKeyUp,
+}: {
+  pressedKeys: Set<string>
+  isShifted: boolean
+  onKeyDown: (k: string) => void
+  onKeyUp: (k: string) => void
+}) {
+  const K = ({ keyCode, className, childrenClassName, containerClassName, children }: {
+    keyCode?: string; className?: string; childrenClassName?: string
+    containerClassName?: string; children?: React.ReactNode
+  }) => {
+    const isPressed = keyCode ? pressedKeys.has(keyCode) : false
+    return (
+      <div className={`rounded-[4px] p-[0.5px] ${containerClassName ?? ''}`}>
+        <button
+          type="button"
+          onMouseDown={e => { e.preventDefault(); if (keyCode) onKeyDown(keyCode) }}
+          onMouseUp={() => { if (keyCode) onKeyUp(keyCode) }}
+          onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
+          className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100
+            shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset]
+            transition-transform duration-75 active:scale-[0.98]
+            ${isPressed ? 'scale-[0.98] bg-gray-100/80' : ''}
+            ${className ?? ''}`}
+        >
+          <div className={`flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700 ${childrenClassName ?? ''}`}>
+            {children}
+          </div>
+        </button>
+      </div>
+    )
+  }
+
+  const MK = ({ keyCode, className, containerClassName, children }: {
+    keyCode?: string; className?: string; containerClassName?: string; children?: React.ReactNode
+  }) => {
+    const isPressed = keyCode ? pressedKeys.has(keyCode) : false
+    return (
+      <div className={`rounded-[4px] p-[0.5px] ${containerClassName ?? ''}`}>
+        <button
+          type="button"
+          onMouseDown={e => { e.preventDefault(); if (keyCode) onKeyDown(keyCode) }}
+          onMouseUp={() => { if (keyCode) onKeyUp(keyCode) }}
+          onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
+          className={`flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100
+            shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset]
+            transition-transform duration-75 active:scale-[0.98]
+            ${isPressed ? 'scale-[0.98] bg-gray-100/80' : ''}
+            ${className ?? ''}`}
+        >
+          <div className="flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700">
+            {children}
+          </div>
+        </button>
+      </div>
+    )
+  }
+
+  const Row = ({ children }: { children: React.ReactNode }) => (
+    <div className="mb-[2px] flex w-full shrink-0 gap-[2px]">{children}</div>
+  )
+
+  const OptionKey = ({ className }: { className?: string }) => (
+    <svg fill="none" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" className={className}>
+      <rect stroke="currentColor" strokeWidth={2} x="18" y="5" width="10" height="2" />
+      <polygon stroke="currentColor" strokeWidth={2} points="10.6,5 4,5 4,7 9.4,7 18.4,27 28,27 28,25 19.6,25" />
+    </svg>
+  )
+
+  // Digit row labels change with shift
+  const digits: [string, string, string][] = [
+    ['Backquote','~','`'],['Digit1','!','1'],['Digit2','@','2'],['Digit3','#','3'],
+    ['Digit4','$','4'],['Digit5','%','5'],['Digit6','^','6'],['Digit7','&','7'],
+    ['Digit8','*','8'],['Digit9','(','9'],['Digit0',')','0'],
+    ['Minus','—','_'],['Equal','+','='],
+  ]
+
+  return (
+    <div className="h-full w-fit rounded-xl bg-neutral-200 p-1 shadow-sm ring-1 shadow-black/5 ring-black/5">
+      {/* Function Row */}
+      <Row>
+        <K keyCode="Escape" containerClassName="rounded-tl-xl" className="w-10 rounded-tl-lg" childrenClassName="items-start justify-end pb-[2px] pl-[4px]"><span>esc</span></K>
+        <K keyCode="F1"><span className="mt-1">F1</span></K>
+        <K keyCode="F2"><span className="mt-1">F2</span></K>
+        <K keyCode="F3"><span className="mt-1">F3</span></K>
+        <K keyCode="F4"><span className="mt-1">F4</span></K>
+        <K keyCode="F5"><span className="mt-1">F5</span></K>
+        <K keyCode="F6"><span className="mt-1">F6</span></K>
+        <K keyCode="F7"><span className="mt-1">F7</span></K>
+        <K keyCode="F8"><span className="mt-1">F8</span></K>
+        <K keyCode="F9"><span className="mt-1">F9</span></K>
+        <K keyCode="F10"><span className="mt-1">F10</span></K>
+        <K keyCode="F11"><span className="mt-1">F11</span></K>
+        <K keyCode="F12"><span className="mt-1">F12</span></K>
+        <K containerClassName="rounded-tr-xl" className="rounded-tr-lg">
+          <div className="h-4 w-4 rounded-full bg-gradient-to-b from-neutral-300 via-neutral-200 to-neutral-300 p-px">
+            <div className="h-full w-full rounded-full bg-neutral-100" />
+          </div>
+        </K>
+      </Row>
+      {/* Number Row */}
+      <Row>
+        {digits.map(([code, top, bottom]) => (
+          <K key={code} keyCode={code}><span>{top}</span><span>{bottom}</span></K>
+        ))}
+        <K keyCode="Backspace" className="w-10" childrenClassName="items-end justify-end pr-[4px] pb-[2px]"><span>delete</span></K>
+      </Row>
+      {/* QWERTY */}
+      <Row>
+        <K keyCode="Tab" className="w-10" childrenClassName="items-start justify-end pb-[2px] pl-[4px]"><span>tab</span></K>
+        {['Q','W','E','R','T','Y','U','I','O','P'].map(l => <K key={l} keyCode={`Key${l}`}>{isShifted ? l : l.toLowerCase()}</K>)}
+        <K keyCode="BracketLeft"><span>{'{'}</span><span>{'['}</span></K>
+        <K keyCode="BracketRight"><span>{'}'}</span><span>{']'}</span></K>
+        <K keyCode="Backslash"><span>{'|'}</span><span>{'\\'}</span></K>
+      </Row>
+      {/* Home Row */}
+      <Row>
+        <K keyCode="CapsLock" className="w-[2.8rem]" childrenClassName="items-start justify-end pb-[2px] pl-[4px]"><span>caps</span></K>
+        {['A','S','D','F','G','H','J','K','L'].map(l => <K key={l} keyCode={`Key${l}`}>{isShifted ? l : l.toLowerCase()}</K>)}
+        <K keyCode="Semicolon"><span>:</span><span>;</span></K>
+        <K keyCode="Quote"><span>{'"'}</span><span>{"'"}</span></K>
+        <K keyCode="Enter" className="w-[2.85rem]" childrenClassName="items-end justify-end pr-[4px] pb-[2px]"><span>return</span></K>
+      </Row>
+      {/* Bottom */}
+      <Row>
+        <K keyCode="ShiftLeft" className="w-[3.65rem]" childrenClassName="items-start justify-end pb-[2px] pl-[4px]"><span>shift</span></K>
+        {['Z','X','C','V','B','N','M'].map(l => <K key={l} keyCode={`Key${l}`}>{isShifted ? l : l.toLowerCase()}</K>)}
+        <K keyCode="Comma"><span>{'<'}</span><span>,</span></K>
+        <K keyCode="Period"><span>{'>'}</span><span>.</span></K>
+        <K keyCode="Slash"><span>?</span><span>/</span></K>
+        <K keyCode="ShiftRight" className="w-[3.65rem]" childrenClassName="items-end justify-end pr-[4px] pb-[2px]"><span>shift</span></K>
+      </Row>
+      {/* Modifiers */}
+      <Row>
+        <MK keyCode="Fn" containerClassName="rounded-bl-xl" className="rounded-bl-lg"><span>fn</span></MK>
+        <MK keyCode="ControlLeft"><span>ctrl</span></MK>
+        <MK keyCode="AltLeft"><OptionKey className="h-[6px] w-[6px]" /><span>opt</span></MK>
+        <MK keyCode="MetaLeft" className="w-8"><span>cmd</span></MK>
+        <K keyCode="Space" className="w-[8.2rem]" />
+        <MK keyCode="MetaRight" className="w-8"><span>cmd</span></MK>
+        <MK keyCode="AltRight"><OptionKey className="h-[6px] w-[6px]" /><span>opt</span></MK>
+        <div className="flex h-6 w-[4.9rem] items-center justify-end rounded-[4px] p-[0.5px]">
+          <K keyCode="ArrowLeft" className="h-6 w-6"><span>←</span></K>
+          <div className="flex flex-col">
+            <K keyCode="ArrowUp" className="h-3 w-6"><span>↑</span></K>
+            <K keyCode="ArrowDown" className="h-3 w-6"><span>↓</span></K>
+          </div>
+          <K keyCode="ArrowRight" containerClassName="rounded-br-xl" className="h-6 w-6 rounded-br-lg"><span>→</span></K>
+        </div>
+      </Row>
+    </div>
+  )
+}
+
+/* ── Main component ─────────────────────────────────────────────── */
+
 export default function Contact() {
+  const [inputValue, setInputValue] = useState('')
+  const [keyboardOpen, setKeyboardOpen] = useState(false)
+  // Exposed input ref so keyboard can inject characters
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value)
+  }
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (!inputValue.trim()) return
+    setKeyboardOpen(false)
+    window.location.href = `mailto:${SITE_META.email}?subject=${encodeURIComponent(inputValue)}`
+  }
+
+  const handleInputChange = useCallback((val: string) => {
+    setInputValue(val)
+  }, [])
+
   return (
     <section
       data-theme="dark"
       id="contact"
-      className="px-6 py-32 md:px-12 md:py-40 bg-[#080808] text-center"
+      className="relative bg-[#080808] overflow-hidden"
     >
-      <div className="max-w-2xl mx-auto">
-        <ScrollReveal direction="up">
-          <p className="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-accent">
+      {/* ── PART 1: Lamp header ───────────────────────────────────── */}
+      <LampContainer>
+        <motion.div
+          initial={{ opacity: 0.5, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.8, ease: "easeInOut" }}
+          viewport={{ once: true }}
+          className="text-center"
+        >
+          <p className="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-[#6EE7F7]">
             Get in Touch
           </p>
-          <h2 className="font-display text-[clamp(36px,6vw,72px)] font-extrabold leading-[1.05] text-[#f2f2f2]">
+          <h2 className="font-display text-[clamp(40px,7vw,80px)] font-extrabold leading-[1.05] text-[#f2f2f2]">
             Let&apos;s Build
             <br />
-            <span className="text-accent">Something.</span>
+            <span className="text-[#6EE7F7]">Something.</span>
           </h2>
-        </ScrollReveal>
-
-        <ScrollReveal delay={150}>
-          <p className="mt-6 text-[17px] leading-[1.7] text-[#888888]">
+          <p className="mt-6 text-[17px] leading-[1.7] text-[#888888] max-w-xl mx-auto">
             I&apos;m currently open to internships, collaborations, and interesting projects.
             If you have something worth building, I want to hear about it.
           </p>
+        </motion.div>
+      </LampContainer>
+
+      {/* ── PART 2: Input + CTA + Social ─────────────────────────── */}
+      <div className="px-6 md:px-12 pt-2 pb-8 flex flex-col items-center">
+        <ScrollReveal direction="up" className="w-full max-w-2xl">
+          <p className="text-center text-[13px] font-medium text-[#444] uppercase tracking-[0.12em] mb-4">
+            Start the conversation
+          </p>
+          {/* Pass inputRef down so keyboard can write into it */}
+          <PlaceholdersAndVanishInput
+            placeholders={INPUT_PLACEHOLDERS}
+            onChange={handleChange}
+            onSubmit={handleSubmit}
+            inputRef={inputRef}
+            onFocus={() => setKeyboardOpen(true)}
+          />
+          <p className="text-center text-[12px] text-[#333] mt-3 font-mono">
+            Press Enter or click ↵ to open your mail client
+          </p>
         </ScrollReveal>
 
-        <ScrollReveal delay={300}>
-          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
-            <Button
-              href={`mailto:${SITE_META.email}`}
-              variant="primary"
-              size="lg"
-            >
+        {/* CTA buttons */}
+        <ScrollReveal delay={150} className="mt-6 w-full max-w-2xl">
+          <div className="flex flex-wrap items-center justify-center gap-4">
+            <Button href={`mailto:${SITE_META.email}`} variant="primary" size="lg">
               Send a Message
             </Button>
-            <Button
-              href="/resume.pdf"
-              variant="secondary"
-              size="lg"
-              download
-            >
+            <Button href="/resume.pdf" variant="secondary" size="lg" download>
               Download Resume
             </Button>
           </div>
         </ScrollReveal>
 
-        <ScrollReveal delay={450}>
-          <div className="mt-12 flex items-center justify-center gap-6 text-[#555555]">
+        {/* Social links */}
+        <ScrollReveal delay={250} className="mt-6">
+          <div className="flex items-center justify-center gap-6 text-[#555555]">
             <a
               href={`mailto:${SITE_META.email}`}
-              className="inline-flex items-center gap-2 text-sm hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+              className="inline-flex items-center gap-2 text-sm hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6EE7F7] rounded"
             >
               <Mail size={15} />
               {SITE_META.email}
             </a>
-            <a
-              href={SITE_META.github}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="GitHub profile"
-              className="hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded p-1"
-            >
+            <a href={SITE_META.github} target="_blank" rel="noopener noreferrer" aria-label="GitHub profile"
+              className="hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6EE7F7] rounded p-1">
               <GitHubIcon size={18} />
             </a>
-            <a
-              href={SITE_META.linkedin}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="LinkedIn profile"
-              className="hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded p-1"
-            >
+            <a href={SITE_META.linkedin} target="_blank" rel="noopener noreferrer" aria-label="LinkedIn profile"
+              className="hover:text-[#888888] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#6EE7F7] rounded p-1">
               <LinkedInIcon size={18} />
             </a>
           </div>
         </ScrollReveal>
       </div>
+
+      {/* ── PART 3: Keyboard — slides up when input is focused ───── */}
+      <AnimatePresence>
+        {keyboardOpen && (
+          <motion.div
+            key="keyboard-panel"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.8 }}
+            className="w-full overflow-hidden"
+            style={{ background: '#0d0d0d', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+          >
+            {/* Dismiss strip */}
+            <div className="flex items-center justify-between px-6 pt-3 pb-1">
+              <span className="text-[11px] font-mono text-[#2a2a2a] uppercase tracking-[0.15em] select-none">
+                Keyboard
+              </span>
+              <button
+                onClick={() => { setKeyboardOpen(false); inputRef.current?.blur() }}
+                className="text-[11px] font-mono text-[#444] hover:text-[#888] transition-colors px-2 py-1 rounded"
+                aria-label="Dismiss keyboard"
+              >
+                Done
+              </button>
+            </div>
+            <div className="pb-8 px-4">
+              <KeyboardPanel inputRef={inputRef} onInputChange={handleInputChange} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   )
 }
