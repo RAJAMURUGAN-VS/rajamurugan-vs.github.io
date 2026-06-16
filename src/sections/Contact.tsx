@@ -2,7 +2,6 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion'
-import { useLenis } from 'lenis/react'
 import { Mail } from 'lucide-react'
 import { LampContainer } from '@/components/ui/lamp'
 import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input'
@@ -494,30 +493,18 @@ export default function Contact() {
   const [keyboardOpen, setKeyboardOpen] = useState(false)
   const [keyboardHeight, setKeyboardHeight] = useState(0)
 
+  // Email popup state
+  const [emailPopupOpen, setEmailPopupOpen] = useState(false)
+  const [pendingMessage, setPendingMessage] = useState('')
+  const [senderEmail, setSenderEmail] = useState('')
+  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
+  const [sendError, setSendError] = useState('')
+  const senderEmailRef = useRef<HTMLInputElement>(null)
+
   // Exposed input ref so keyboard can inject characters
   const inputRef = useRef<HTMLInputElement>(null)
   const keyboardRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
-
-  // Setup Lenis slow-scrolling inside Contact section
-  const lenis = useLenis()
-  useEffect(() => {
-    const element = sectionRef.current
-    if (!element) return
-
-    const handleWheel = (e: WheelEvent) => {
-      e.preventDefault()
-      if (lenis) {
-        // Scroll 65% slower for a smooth, classic experience
-        lenis.scrollBy(e.deltaY * 0.35, { immediate: false })
-      }
-    }
-
-    element.addEventListener('wheel', handleWheel, { passive: false })
-    return () => {
-      element.removeEventListener('wheel', handleWheel)
-    }
-  }, [lenis])
 
   // Track scroll position of the contact section for scroll-driven animations
   const { scrollYProgress } = useScroll({
@@ -557,7 +544,49 @@ export default function Contact() {
     e.preventDefault()
     if (!inputValue.trim()) return
     setKeyboardOpen(false)
-    window.location.href = `mailto:${SITE_META.email}?subject=${encodeURIComponent(inputValue)}`
+    // Store message and open the email popup
+    setPendingMessage(inputValue.trim())
+    setSenderEmail('')
+    setSendStatus('idle')
+    setSendError('')
+    setEmailPopupOpen(true)
+    setTimeout(() => senderEmailRef.current?.focus(), 350)
+  }
+
+  const handleSendEmail = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!senderEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(senderEmail)) {
+      setSendError('Please enter a valid email address.')
+      return
+    }
+    setSendStatus('sending')
+    setSendError('')
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ senderEmail: senderEmail.trim(), message: pendingMessage }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json.error ?? 'Failed to send.')
+      setSendStatus('success')
+      // Auto-close after 3s on success
+      setTimeout(() => {
+        setEmailPopupOpen(false)
+        setInputValue('')
+        setSendStatus('idle')
+      }, 3000)
+    } catch (err) {
+      setSendStatus('error')
+      setSendError(err instanceof Error ? err.message : 'Something went wrong.')
+    }
+  }
+
+  const closeEmailPopup = () => {
+    if (sendStatus === 'sending') return
+    setEmailPopupOpen(false)
+    setSendStatus('idle')
+    setSendError('')
   }
 
   const handleInputChange = useCallback((val: string) => {
@@ -652,16 +681,31 @@ export default function Contact() {
 
         <ScrollReveal direction="up" delay={50} className="w-full max-w-2xl text-center">
           <p className="text-center text-[12px] text-[#333] mt-3 font-mono">
-            Press Enter or click ↵ to open your mail client
+            Press Enter or click ↵ — we&apos;ll ask for your email next
           </p>
         </ScrollReveal>
 
         {/* CTA buttons */}
         <ScrollReveal delay={150} className="mt-6 w-full max-w-2xl">
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button href={`mailto:${SITE_META.email}`} variant="primary" size="lg">
+            <button
+              type="button"
+              onClick={() => {
+                if (!inputValue.trim()) {
+                  inputRef.current?.focus()
+                  return
+                }
+                setPendingMessage(inputValue.trim())
+                setSenderEmail('')
+                setSendStatus('idle')
+                setSendError('')
+                setEmailPopupOpen(true)
+                setTimeout(() => senderEmailRef.current?.focus(), 350)
+              }}
+              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-[var(--radius-md)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg bg-accent text-[#080808] hover:bg-[#a5f0fa]"
+            >
               Send a Message
-            </Button>
+            </button>
             <Button href="/resume.pdf" variant="secondary" size="lg" download>
               Download Resume
             </Button>
@@ -721,6 +765,152 @@ export default function Contact() {
               <KeyboardPanel inputRef={inputRef} onInputChange={handleInputChange} keyboardOpen={keyboardOpen} />
             </div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Email popup — slides up from bottom ──────────────────── */}
+      <AnimatePresence>
+        {emailPopupOpen && (
+          <>
+            {/* Backdrop */}
+            <motion.div
+              key="email-backdrop"
+              className="fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              onClick={closeEmailPopup}
+            />
+
+            {/* Sheet */}
+            <motion.div
+              key="email-sheet"
+              className="fixed bottom-0 left-0 right-0 z-[70] w-full"
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 340, damping: 34, mass: 0.85 }}
+            >
+              <div
+                className="mx-auto w-full max-w-lg rounded-t-2xl px-6 pt-5 pb-10"
+                style={{ background: '#111111', border: '1px solid rgba(255,255,255,0.08)', borderBottom: 'none' }}
+                onClick={e => e.stopPropagation()}
+              >
+                {/* Drag handle */}
+                <div className="flex justify-center mb-5">
+                  <div className="w-10 h-1 rounded-full bg-white/10" />
+                </div>
+
+                {sendStatus === 'success' ? (
+                  /* ── Success state ── */
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.92 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="flex flex-col items-center gap-3 py-6 text-center"
+                  >
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center mb-1"
+                      style={{ background: 'rgba(110,231,247,0.1)', border: '1px solid rgba(110,231,247,0.25)' }}>
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#6EE7F7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                    </div>
+                    <p className="text-[17px] font-semibold text-[#f2f2f2]">Message sent!</p>
+                    <p className="text-[13px] text-[#555]">
+                      I&apos;ll get back to you at <span className="text-[#6EE7F7]">{senderEmail}</span> soon.
+                    </p>
+                  </motion.div>
+                ) : (
+                  /* ── Form state ── */
+                  <form onSubmit={handleSendEmail} noValidate>
+                    {/* Header */}
+                    <div className="flex items-start justify-between mb-5">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-[0.15em] text-[#6EE7F7] mb-1">
+                          One last thing
+                        </p>
+                        <h3 className="text-[17px] font-semibold text-[#f2f2f2] leading-snug">
+                          Where should I reply?
+                        </h3>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={closeEmailPopup}
+                        className="text-[#444] hover:text-[#888] transition-colors p-1 rounded"
+                        aria-label="Close"
+                        disabled={sendStatus === 'sending'}
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                          <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+
+                    {/* Message preview */}
+                    <div className="mb-4 px-3 py-2.5 rounded-lg text-[13px] text-[#555] italic line-clamp-2"
+                      style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                      &ldquo;{pendingMessage}&rdquo;
+                    </div>
+
+                    {/* Email input */}
+                    <div className="mb-4">
+                      <label htmlFor="sender-email" className="block text-[12px] font-medium text-[#444] mb-2 uppercase tracking-[0.1em]">
+                        Your email address
+                      </label>
+                      <input
+                        ref={senderEmailRef}
+                        id="sender-email"
+                        type="email"
+                        value={senderEmail}
+                        onChange={e => { setSenderEmail(e.target.value); setSendError('') }}
+                        placeholder="you@example.com"
+                        autoComplete="email"
+                        disabled={sendStatus === 'sending'}
+                        className="w-full h-11 px-4 rounded-xl text-[14px] text-white placeholder:text-[#333] outline-none transition-all duration-200 disabled:opacity-50"
+                        style={{
+                          background: '#1a1a1a',
+                          border: sendError ? '1px solid rgba(239,68,68,0.6)' : '1px solid rgba(255,255,255,0.1)',
+                          boxShadow: sendError ? '0 0 0 3px rgba(239,68,68,0.1)' : 'none',
+                        }}
+                        onFocus={e => { e.currentTarget.style.border = '1px solid rgba(110,231,247,0.4)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(110,231,247,0.08)' }}
+                        onBlur={e => { if (!sendError) { e.currentTarget.style.border = '1px solid rgba(255,255,255,0.1)'; e.currentTarget.style.boxShadow = 'none' } }}
+                      />
+                      {sendError && (
+                        <p className="mt-1.5 text-[12px] text-red-400 font-mono">{sendError}</p>
+                      )}
+                    </div>
+
+                    {/* Submit */}
+                    <button
+                      type="submit"
+                      disabled={sendStatus === 'sending'}
+                      className="w-full h-11 rounded-xl text-[14px] font-semibold transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                      style={{ background: '#6EE7F7', color: '#080808' }}
+                    >
+                      {sendStatus === 'sending' ? (
+                        <>
+                          <svg className="animate-spin" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                            <circle cx="12" cy="12" r="10" strokeOpacity="0.25" />
+                            <path d="M12 2a10 10 0 0 1 10 10" />
+                          </svg>
+                          Sending…
+                        </>
+                      ) : (
+                        <>
+                          <Mail size={15} />
+                          Send Message
+                        </>
+                      )}
+                    </button>
+
+                    <p className="text-center text-[11px] text-[#333] mt-3 font-mono">
+                      Your message will be sent to rajamurugan.dev@gmail.com
+                    </p>
+                  </form>
+                )}
+              </div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
     </section>

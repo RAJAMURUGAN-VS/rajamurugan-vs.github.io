@@ -10,9 +10,13 @@ export const SITE_META = {
 }
 
 export const NAV_LINKS = [
-  { label: 'Work', href: '#projects' },
-  { label: 'Journey', href: '#genai-journey' },
-  { label: 'Skills', href: '#skills' },
-  { label: 'About', href: '#about' },
-  { label: 'Contact', href: '#contact' },
+  { label: 'Projects',      href: '#projects' },
+  { label: 'React',         href: '#react-journey' },
+  { label: 'GenAI',         href: '#genai-journey' },
+  { label: 'GitHub',        href: '#build-history' },
+  { label: 'Skills',        href: '#skills' },
+  { label: 'Timeline',      href: '#timeline' },
+  { label: 'Credentials',   href: '#credentials' },
+  { label: 'About',         href: '#about' },
+  { label: 'Contact',       href: '#contact' },
 ]
