@@ -24,8 +24,6 @@ export default function Timeline() {
   // fillPx: pixel height of the glowing beam (snaps to dot positions)
   const [fillPx, setFillPx] = useState(0)
 
-  const total = timelineEntries.length
-
   // ── Compute checkpoint pixel offsets from the line top ───────────────────────
   const getDotOffsets = useCallback((): number[] => {
     const line = lineRef.current

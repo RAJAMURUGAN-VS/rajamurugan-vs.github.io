@@ -4,6 +4,7 @@ import './globals.css'
 
 import LenisProvider from '@/components/shared/LenisProvider'
 import Nav from '@/components/layout/Nav'
+import Preloader from '@/components/ui/Preloader'
 import { SITE_META } from '@/lib/constants'
 
 const syne = Syne({
@@ -41,6 +42,7 @@ export default function RootLayout({
       className={[syne.variable, dmSans.variable, jetbrainsMono.variable].join(' ')}
     >
       <body>
+        <Preloader />
         <LenisProvider>
           <Nav />
           {children}
