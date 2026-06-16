@@ -418,11 +418,11 @@ const Key = ({
         onMouseLeave={() => { if (keyCode && isPressed) { setReleased(keyCode); } }}
         className={cn(
           "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
-          isPressed && "scale-[0.98] bg-gray-100/80 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,0.5)]",
+          isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
           className
         )}
       >
-        <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700", childrenClassName)}>
+        <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800", childrenClassName)}>
           {children}
         </div>
       </button>
@@ -447,11 +447,11 @@ const ModifierKey = ({
         onMouseLeave={() => { if (keyCode && isPressed) { setReleased(keyCode); } }}
         className={cn(
           "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
-          isPressed && "scale-[0.98] bg-gray-100/80 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,0.5)]",
+          isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
           className
         )}
       >
-        <div className="flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700">
+        <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800")}>
           {children}
         </div>
       </button>

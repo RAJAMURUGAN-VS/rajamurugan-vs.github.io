@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion'
+import { useLenis } from 'lenis/react'
 import { Mail } from 'lucide-react'
 import { LampContainer } from '@/components/ui/lamp'
 import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input'
@@ -263,6 +264,22 @@ function KeyboardPanel({
     if (['ControlLeft','AltLeft','MetaLeft','MetaRight','AltRight','Fn','Tab','Escape',
          ...Array.from({length:12},(_,i)=>`F${i+1}`)].includes(keyCode)) return
 
+    if (keyCode === 'ArrowLeft') {
+      const start = input.selectionStart ?? 0
+      const end = input.selectionEnd ?? 0
+      const newPos = start === end ? Math.max(0, start - 1) : start
+      input.setSelectionRange(newPos, newPos)
+      return
+    }
+
+    if (keyCode === 'ArrowRight') {
+      const start = input.selectionStart ?? 0
+      const end = input.selectionEnd ?? 0
+      const newPos = start === end ? Math.min(input.value.length, start + 1) : end
+      input.setSelectionRange(newPos, newPos)
+      return
+    }
+
     const char = keyCodeToChar(keyCode, isUppercase)
     if (!char) return
 
@@ -337,11 +354,11 @@ function KeypadWired({
           onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
           className={cn(
             "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
-            isPressed && "scale-[0.98] bg-gray-100/80 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,0.5)]",
+            isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
             className
           )}
         >
-          <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700", childrenClassName)}>
+          <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800", childrenClassName)}>
             {children}
           </div>
         </button>
@@ -362,11 +379,11 @@ function KeypadWired({
           onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
           className={cn(
             "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
-            isPressed && "scale-[0.98] bg-gray-100/80 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,0.5)]",
+            isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
             className
           )}
         >
-          <div className="flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700">
+          <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800")}>
             {children}
           </div>
         </button>
@@ -480,6 +497,43 @@ export default function Contact() {
   // Exposed input ref so keyboard can inject characters
   const inputRef = useRef<HTMLInputElement>(null)
   const keyboardRef = useRef<HTMLDivElement>(null)
+  const sectionRef = useRef<HTMLDivElement>(null)
+
+  // Setup Lenis slow-scrolling inside Contact section
+  const lenis = useLenis()
+  useEffect(() => {
+    const element = sectionRef.current
+    if (!element) return
+
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      if (lenis) {
+        // Scroll 65% slower for a smooth, classic experience
+        lenis.scrollBy(e.deltaY * 0.35, { immediate: false })
+      }
+    }
+
+    element.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      element.removeEventListener('wheel', handleWheel)
+    }
+  }, [lenis])
+
+  // Track scroll position of the contact section for scroll-driven animations
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start end", "end start"]
+  })
+
+  // Buttery-smooth spring progress for text entry animation
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 70,
+    damping: 25,
+    restDelta: 0.001
+  })
+
+  const textY = useTransform(smoothProgress, [0.05, 0.45], [150, 0])
+  const textOpacity = useTransform(smoothProgress, [0.05, 0.45], [0, 1])
 
   useEffect(() => {
     if (keyboardOpen && keyboardRef.current) {
@@ -514,6 +568,7 @@ export default function Contact() {
 
   return (
     <section
+      ref={sectionRef}
       data-theme="dark"
       id="contact"
       className="relative bg-[#080808] overflow-hidden"
@@ -535,12 +590,9 @@ export default function Contact() {
       </AnimatePresence>
 
       {/* ── PART 1: Lamp header ───────────────────────────────────── */}
-      <LampContainer>
+      <LampContainer scrollProgress={scrollYProgress}>
         <motion.div
-          initial={{ opacity: 0.5, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: "easeInOut" }}
-          viewport={{ once: true }}
+          style={{ y: textY, opacity: textOpacity }}
           className="text-center"
         >
           <p className="mb-4 text-xs font-medium uppercase tracking-[0.15em] text-[#6EE7F7]">
