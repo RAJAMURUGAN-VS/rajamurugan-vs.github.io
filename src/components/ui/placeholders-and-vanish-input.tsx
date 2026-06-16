@@ -4,6 +4,11 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cn } from "@/lib/utils";
 
+// One line height in px (text-base = 16px, line-height 1.6 = 25.6px)
+const LINE_HEIGHT = 25.6;
+const MAX_LINES = 6;
+const MAX_HEIGHT = Math.round(LINE_HEIGHT * MAX_LINES); // ~154px
+
 export function PlaceholdersAndVanishInput({
   placeholders,
   onChange,
@@ -12,19 +17,22 @@ export function PlaceholdersAndVanishInput({
   onFocus,
 }: {
   placeholders: string[];
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
-  inputRef?: React.RefObject<HTMLInputElement | null>;
+  inputRef?: React.RefObject<HTMLTextAreaElement | null>;
   onFocus?: () => void;
 }) {
   const [currentPlaceholder, setCurrentPlaceholder] = useState(0);
 
+  // ── Placeholder cycling ──────────────────────────────────────────
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   const startAnimation = () => {
     intervalRef.current = setInterval(() => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
   };
+
   const handleVisibilityChange = () => {
     if (document.visibilityState !== "visible" && intervalRef.current) {
       clearInterval(intervalRef.current);
@@ -44,111 +52,64 @@ export function PlaceholdersAndVanishInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placeholders]);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const newDataRef = useRef<{ x: number; y: number; r: number; color: string }[]>([]);
-  const internalInputRef = useRef<HTMLInputElement>(null);
-  // Use external ref if provided, otherwise internal
-  const inputRef = (externalInputRef ?? internalInputRef) as React.RefObject<HTMLInputElement>;
+  // ── Refs & state ─────────────────────────────────────────────────
+  const internalRef = useRef<HTMLTextAreaElement>(null);
+  const inputRef = (externalInputRef ?? internalRef) as React.RefObject<HTMLTextAreaElement>;
+
   const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);
+  // Whether the textarea is taller than one line (used for Shift+Enter hint)
+  const [isMultiline, setIsMultiline] = useState(false);
+  // Whether content exceeds max height (scrollbar visible)
+  const [scrollable, setScrollable] = useState(false);
 
-  const draw = useCallback(() => {
-    if (!inputRef.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  // ── Auto-resize ──────────────────────────────────────────────────
+  const autoResize = useCallback(() => {
+    const el = inputRef.current;
+    if (!el) return;
 
-    canvas.width = 800;
-    canvas.height = 800;
-    ctx.clearRect(0, 0, 800, 800);
-    const computedStyles = getComputedStyle(inputRef.current);
-    const fontSize = parseFloat(computedStyles.getPropertyValue("font-size"));
-    ctx.font = `${fontSize * 2}px ${computedStyles.fontFamily}`;
-    ctx.fillStyle = "#FFF";
-    ctx.fillText(value, 16, 40);
+    // Shrink to measure natural scroll height
+    el.style.height = "auto";
+    const sh = el.scrollHeight;
 
-    const imageData = ctx.getImageData(0, 0, 800, 800);
-    const pixelData = imageData.data;
-    const newData: { x: number; y: number; r: number; color: string }[] = [];
-
-    for (let t = 0; t < 800; t++) {
-      const i = 4 * t * 800;
-      for (let n = 0; n < 800; n++) {
-        const e = i + 4 * n;
-        if (pixelData[e] !== 0 && pixelData[e + 1] !== 0 && pixelData[e + 2] !== 0) {
-          newData.push({
-            x: n,
-            y: t,
-            r: 1,
-            color: `rgba(${pixelData[e]}, ${pixelData[e + 1]}, ${pixelData[e + 2]}, ${pixelData[e + 3]})`,
-          });
-        }
-      }
+    if (sh <= MAX_HEIGHT) {
+      // Fits within max — grow to content, hide scrollbar
+      el.style.height = `${sh}px`;
+      el.style.overflowY = "hidden";
+      setScrollable(false);
+    } else {
+      // Exceeds max — lock height, show scrollbar
+      el.style.height = `${MAX_HEIGHT}px`;
+      el.style.overflowY = "auto";
+      setScrollable(true);
     }
-    newDataRef.current = newData;
-  }, [value, inputRef]);
+
+    setIsMultiline(sh > LINE_HEIGHT * 1.5);
+  }, [inputRef]);
 
   useEffect(() => {
-    draw();
-  }, [value, draw]);
+    autoResize();
+  }, [value, autoResize]);
 
-  const animate = (start: number) => {
-    const animateFrame = (pos: number = 0) => {
-      requestAnimationFrame(() => {
-        const newArr = [];
-        for (let i = 0; i < newDataRef.current.length; i++) {
-          const current = newDataRef.current[i];
-          if (current.x < pos) {
-            newArr.push(current);
-          } else {
-            if (current.r <= 0) { current.r = 0; continue; }
-            current.x += Math.random() > 0.5 ? 1 : -1;
-            current.y += Math.random() > 0.5 ? 1 : -1;
-            current.r -= 0.05 * Math.random();
-            newArr.push(current);
-          }
-        }
-        newDataRef.current = newArr;
-        const ctx = canvasRef.current?.getContext("2d");
-        if (ctx) {
-          ctx.clearRect(pos, 0, 800, 800);
-          newDataRef.current.forEach((t) => {
-            const { x: n, y: i, r: s, color } = t;
-            if (n > pos) {
-              ctx.beginPath();
-              ctx.rect(n, i, s, s);
-              ctx.fillStyle = color;
-              ctx.strokeStyle = color;
-              ctx.stroke();
-            }
-          });
-        }
-        if (newDataRef.current.length > 0) {
-          animateFrame(pos - 8);
-        } else {
-          setValue("");
-          setAnimating(false);
-        }
-      });
-    };
-    animateFrame(start);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" && !animating) vanishAndSubmit();
-  };
-
-  const vanishAndSubmit = () => {
+  // ── Submit logic ─────────────────────────────────────────────────
+  const vanishAndSubmit = useCallback(() => {
+    if (!value.trim()) return;
     setAnimating(true);
-    draw();
-    const val = inputRef.current?.value || "";
-    if (val && inputRef.current) {
-      const maxX = newDataRef.current.reduce(
-        (prev, current) => (current.x > prev ? current.x : prev),
-        0
-      );
-      animate(maxX);
+    setTimeout(() => {
+      setValue("");
+      setAnimating(false);
+    }, 320);
+  }, [value]);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter") {
+      if (e.shiftKey) {
+        // Shift+Enter — let the browser/textarea handle the newline naturally
+        return;
+      }
+      // Plain Enter — submit
+      e.preventDefault();
+      vanishAndSubmit();
     }
   };
 
@@ -161,20 +122,16 @@ export function PlaceholdersAndVanishInput({
   return (
     <form
       className={cn(
-        "w-full relative max-w-xl mx-auto h-12 rounded-full overflow-hidden transition duration-200",
-        "bg-[#111111] border border-white/[0.1]",
-        value && "border-white/[0.2]"
+        "w-full relative max-w-xl mx-auto rounded-2xl transition-all duration-200",
+        "bg-[#111111] border",
+        value ? "border-white/[0.18]" : "border-white/[0.08]"
       )}
       onSubmit={handleSubmit}
     >
-      <canvas
-        className={cn(
-          "absolute pointer-events-none text-base transform scale-50 top-[20%] left-2 sm:left-8 origin-top-left pr-20",
-          !animating ? "opacity-0" : "opacity-100"
-        )}
-        ref={canvasRef}
-      />
-      <input
+      <textarea
+        ref={inputRef}
+        value={value}
+        rows={1}
         onChange={(e) => {
           if (!animating) {
             setValue(e.target.value);
@@ -184,24 +141,46 @@ export function PlaceholdersAndVanishInput({
         onKeyDown={handleKeyDown}
         onFocus={onFocus}
         onInput={(e) => {
-          // Sync value when keyboard panel injects characters via .value assignment
-          const val = (e.target as HTMLInputElement).value;
-          if (!animating) setValue(val);
+          // Sync from keyboard panel injections
+          const val = (e.target as HTMLTextAreaElement).value;
+          if (!animating) {
+            setValue(val);
+            autoResize();
+          }
         }}
-        ref={inputRef}
-        value={value}
-        type="text"
         className={cn(
-          "w-full relative text-sm sm:text-base z-50 border-none bg-transparent text-white h-full rounded-full focus:outline-none focus:ring-0 pl-4 sm:pl-10 pr-20",
+          // Layout
+          "w-[calc(100%-3rem)] block relative z-50",
+          // Typography
+          "text-sm sm:text-base leading-[1.6] text-white",
+          // Padding — right pad leaves room for the scrollbar
+          "pt-3.5 pb-3.5 pl-4 sm:pl-5 pr-2",
+          // Sizing — min one line, max controlled by JS
+          "min-h-[48px]",
+          // Behaviour
+          "resize-none",        // no manual resize handle
+          "overflow-hidden",    // JS controls overflow, start hidden
+          "word-break",         // break long words
+          // Chrome/Safari custom scrollbar styling via Tailwind
+          scrollable && "overflow-y-auto scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent",
+          // Input chrome reset
+          "bg-transparent border-none focus:outline-none focus:ring-0",
           animating && "text-transparent"
         )}
+        style={{
+          transition: "height 0.15s ease",
+          overflowWrap: "break-word",
+          wordBreak: "break-word",
+          whiteSpace: "pre-wrap",  // preserves newlines + wraps
+        }}
       />
 
+      {/* Submit button — anchored bottom-right, always visible */}
       <button
-        disabled={!value}
+        disabled={!value.trim()}
         type="submit"
-        className="absolute right-2 top-1/2 z-50 -translate-y-1/2 h-8 w-8 rounded-full disabled:bg-white/5 bg-[#6EE7F7] transition duration-200 flex items-center justify-center"
-        aria-label="Submit"
+        className="absolute right-2 bottom-2 z-50 h-8 w-8 rounded-full disabled:bg-white/5 bg-[#6EE7F7] transition duration-200 flex items-center justify-center flex-shrink-0"
+        aria-label="Submit message"
       >
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"
@@ -227,22 +206,40 @@ export function PlaceholdersAndVanishInput({
         </motion.svg>
       </button>
 
-      <div className="absolute inset-0 flex items-center rounded-full pointer-events-none">
+      {/* Animated placeholder — only when empty */}
+      <div className="absolute inset-0 flex items-start pt-3.5 pointer-events-none rounded-2xl overflow-hidden">
         <AnimatePresence mode="wait">
           {!value && (
             <motion.p
               initial={{ y: 5, opacity: 0 }}
               key={`placeholder-${currentPlaceholder}`}
               animate={{ y: 0, opacity: 1 }}
-              exit={{ y: -15, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "linear" }}
-              className="text-[#555] text-sm sm:text-base font-normal pl-4 sm:pl-12 text-left w-[calc(100%-2rem)] truncate"
+              exit={{ y: -12, opacity: 0 }}
+              transition={{ duration: 0.25, ease: "linear" }}
+              className="text-[#444] text-sm sm:text-base font-normal pl-4 sm:pl-5 pr-14 leading-[1.6] w-full truncate"
             >
               {placeholders[currentPlaceholder]}
             </motion.p>
           )}
         </AnimatePresence>
       </div>
+
+      {/* Shift+Enter hint — appears once the box is multiline */}
+      <AnimatePresence>
+        {isMultiline && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-2.5 left-3.5 pointer-events-none"
+          >
+            <span className="text-[10px] text-[#2a2a2a] font-mono tracking-wide select-none">
+              shift+enter · new line
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </form>
   );
 }

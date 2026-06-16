@@ -13,9 +13,9 @@ import { SOUND_DEFINES_DOWN, SOUND_DEFINES_UP } from '@/components/ui/keyboard'
 
 /* ── React Input Value Setter Helper ────────────────────────────── */
 
-const setReactInputValue = (input: HTMLInputElement, newVal: string, selectionStart: number, selectionEnd: number) => {
+const setReactInputValue = (input: HTMLTextAreaElement, newVal: string, selectionStart: number, selectionEnd: number) => {
   if (typeof window === 'undefined') return
-  const proto = typeof HTMLInputElement !== 'undefined' ? HTMLInputElement.prototype : null
+  const proto = typeof HTMLTextAreaElement !== 'undefined' ? HTMLTextAreaElement.prototype : null
   if (!proto) return
   const nativeInputValueSetter = Object.getOwnPropertyDescriptor(proto, "value")?.set
   if (nativeInputValueSetter) {
@@ -91,7 +91,7 @@ function KeyboardPanel({
   onInputChange,
   keyboardOpen,
 }: {
-  inputRef: React.RefObject<HTMLInputElement | null>
+  inputRef: React.RefObject<HTMLTextAreaElement | null>
   onInputChange: (val: string) => void
   keyboardOpen: boolean
 }) {
@@ -255,7 +255,12 @@ function KeyboardPanel({
     }
 
     if (keyCode === 'Enter') {
-      input.form?.requestSubmit()
+      // In textarea mode, Enter inserts a newline (Shift+Enter in the textarea submits)
+      const start = input.selectionStart ?? input.value.length
+      const end = input.selectionEnd ?? input.value.length
+      const newVal = input.value.slice(0, start) + '\n' + input.value.slice(end)
+      setReactInputValue(input, newVal, start + 1, start + 1)
+      onInputChange(input.value)
       return
     }
 
@@ -499,10 +504,11 @@ export default function Contact() {
   const [senderEmail, setSenderEmail] = useState('')
   const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle')
   const [sendError, setSendError] = useState('')
+  const [messageError, setMessageError] = useState(false)
   const senderEmailRef = useRef<HTMLInputElement>(null)
 
   // Exposed input ref so keyboard can inject characters
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
   const keyboardRef = useRef<HTMLDivElement>(null)
   const sectionRef = useRef<HTMLDivElement>(null)
 
@@ -536,14 +542,21 @@ export default function Contact() {
     }
   }, [keyboardOpen])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInputValue(e.target.value)
+    if (e.target.value.trim()) setMessageError(false)
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    if (!inputValue.trim()) return
+    if (!inputValue.trim()) {
+      setMessageError(true)
+      // Auto-clear the error after 3s
+      setTimeout(() => setMessageError(false), 3000)
+      return
+    }
     setKeyboardOpen(false)
+    setMessageError(false)
     // Store message and open the email popup
     setPendingMessage(inputValue.trim())
     setSenderEmail('')
@@ -574,7 +587,13 @@ export default function Contact() {
       setTimeout(() => {
         setEmailPopupOpen(false)
         setInputValue('')
+        setPendingMessage('')
         setSendStatus('idle')
+        if (inputRef.current) {
+          inputRef.current.value = ''
+          inputRef.current.style.height = 'auto'
+          inputRef.current.dispatchEvent(new Event('input', { bubbles: true }))
+        }
       }, 3000)
     } catch (err) {
       setSendStatus('error')
@@ -587,6 +606,16 @@ export default function Contact() {
     setEmailPopupOpen(false)
     setSendStatus('idle')
     setSendError('')
+    // Always clear the message when the popup is dismissed without sending
+    if (sendStatus !== 'success') {
+      setInputValue('')
+      setPendingMessage('')
+      if (inputRef.current) {
+        inputRef.current.value = ''
+        inputRef.current.style.height = 'auto'
+        inputRef.current.dispatchEvent(new Event('input', { bubbles: true }))
+      }
+    }
   }
 
   const handleInputChange = useCallback((val: string) => {
@@ -683,6 +712,22 @@ export default function Contact() {
           <p className="text-center text-[12px] text-[#333] mt-3 font-mono">
             Press Enter or click ↵ — we&apos;ll ask for your email next
           </p>
+          {/* Empty message indicator */}
+          <AnimatePresence>
+            {messageError && (
+              <motion.p
+                key="msg-error"
+                initial={{ opacity: 0, y: -6 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -6 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+                className="mt-2 text-[12px] font-mono"
+                style={{ color: 'rgba(251,191,36,0.85)' }}
+              >
+                ∅ &nbsp;Nothing to send yet — share what&apos;s on your mind first.
+              </motion.p>
+            )}
+          </AnimatePresence>
         </ScrollReveal>
 
         {/* CTA buttons */}
@@ -692,9 +737,12 @@ export default function Contact() {
               type="button"
               onClick={() => {
                 if (!inputValue.trim()) {
+                  setMessageError(true)
+                  setTimeout(() => setMessageError(false), 3000)
                   inputRef.current?.focus()
                   return
                 }
+                setMessageError(false)
                 setPendingMessage(inputValue.trim())
                 setSenderEmail('')
                 setSendStatus('idle')
