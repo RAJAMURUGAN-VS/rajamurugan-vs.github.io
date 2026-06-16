@@ -58,9 +58,6 @@ export function PlaceholdersAndVanishInput({
 
   const [value, setValue] = useState("");
   const [animating, setAnimating] = useState(false);
-  // Whether the textarea is taller than one line (used for Shift+Enter hint)
-  const [isMultiline, setIsMultiline] = useState(false);
-  // Whether content exceeds max height (scrollbar visible)
   const [scrollable, setScrollable] = useState(false);
 
   // ── Auto-resize ──────────────────────────────────────────────────
@@ -84,47 +81,48 @@ export function PlaceholdersAndVanishInput({
       setScrollable(true);
     }
 
-    setIsMultiline(sh > LINE_HEIGHT * 1.5);
+    setScrollable(sh > MAX_HEIGHT);
   }, [inputRef]);
 
   useEffect(() => {
     autoResize();
   }, [value, autoResize]);
 
-  // ── Submit logic ─────────────────────────────────────────────────
-  const vanishAndSubmit = useCallback(() => {
-    if (!value.trim()) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setValue("");
-      setAnimating(false);
-    }, 320);
-  }, [value]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
-        // Shift+Enter — let the browser/textarea handle the newline naturally
+        // Shift+Enter — insert newline naturally
         return;
       }
-      // Plain Enter — submit
+      // Plain Enter — submit the form
       e.preventDefault();
-      vanishAndSubmit();
+      // Trigger the form's submit event so Contact's handleSubmit fires
+      e.currentTarget.form?.requestSubmit();
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    vanishAndSubmit();
+    if (!value.trim()) {
+      if (onSubmit) onSubmit(e);
+      return;
+    }
+    // Call parent first — parent reads inputValue before we clear
     if (onSubmit) onSubmit(e);
+    // Then animate the vanish
+    setAnimating(true);
+    setTimeout(() => {
+      setValue("");
+      setAnimating(false);
+    }, 320);
   };
 
   return (
     <form
       className={cn(
         "w-full relative max-w-xl mx-auto rounded-2xl transition-all duration-200",
-        "bg-[#111111] border",
-        value ? "border-white/[0.18]" : "border-white/[0.08]"
+        "bg-[#161616] border",
+        value ? "border-white/[0.18]" : "border-white/[0.18]"
       )}
       onSubmit={handleSubmit}
     >
@@ -216,7 +214,7 @@ export function PlaceholdersAndVanishInput({
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: -12, opacity: 0 }}
               transition={{ duration: 0.25, ease: "linear" }}
-              className="text-[#444] text-sm sm:text-base font-normal pl-4 sm:pl-5 pr-14 leading-[1.6] w-full truncate"
+              className="text-[#555555] text-sm sm:text-base font-normal pl-4 sm:pl-5 pr-14 leading-[1.6] w-full truncate"
             >
               {placeholders[currentPlaceholder]}
             </motion.p>
@@ -224,22 +222,6 @@ export function PlaceholdersAndVanishInput({
         </AnimatePresence>
       </div>
 
-      {/* Shift+Enter hint — appears once the box is multiline */}
-      <AnimatePresence>
-        {isMultiline && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="absolute bottom-2.5 left-3.5 pointer-events-none"
-          >
-            <span className="text-[10px] text-[#2a2a2a] font-mono tracking-wide select-none">
-              shift+enter · new line
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </form>
   );
 }

@@ -671,7 +671,7 @@ export default function Contact() {
       {/* ── PART 2: Input + CTA + Social ─────────────────────────── */}
       <div className="px-6 md:px-12 pt-2 pb-8 flex flex-col items-center">
         <ScrollReveal direction="up" className="w-full max-w-2xl text-center">
-          <p className="text-center text-[13px] font-medium text-[#444] uppercase tracking-[0.12em] mb-4">
+          <p className="text-center text-[13px] font-medium text-[#888888] uppercase tracking-[0.12em] mb-4">
             Start the conversation
           </p>
         </ScrollReveal>
@@ -709,7 +709,7 @@ export default function Contact() {
         </div>
 
         <ScrollReveal direction="up" delay={50} className="w-full max-w-2xl text-center">
-          <p className="text-center text-[12px] text-[#333] mt-3 font-mono">
+          <p className="text-center text-[12px] text-[#555555] mt-3 font-mono">
             Press Enter or click ↵ — we&apos;ll ask for your email next
           </p>
           {/* Empty message indicator */}
