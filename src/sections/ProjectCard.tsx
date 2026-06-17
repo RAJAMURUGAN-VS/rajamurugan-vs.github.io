@@ -1,6 +1,5 @@
 'use client'
 import React from 'react'
-import { motion } from 'framer-motion'
 import Image from 'next/image'
 import { ExternalLink } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
@@ -22,21 +21,29 @@ interface ProjectCardProps {
 export default function ProjectCard({ project, imageLeft = true }: ProjectCardProps) {
   const [imgError, setImgError] = React.useState(false)
 
+  // FIX: Replace motion.article whileHover with CSS transition on a plain article.
+  // Root cause of the first-load glitch: Framer Motion's whileHover initializes
+  // its gesture state on mount, which triggers a brief layout recalculation that
+  // causes the card to visually jump (translateY flicker) before settling.
+  // CSS transform transitions don't have this initialization cost — they only
+  // activate on actual pointer events, so there is zero first-paint side effect.
   return (
-    <motion.article
-      whileHover={{ y: -4 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-      className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
-    >
+    <article className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center group/card">
+
       {/* Image */}
       <div className={`${imageLeft ? 'md:order-1' : 'md:order-2'} order-1`}>
-        <div className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-lg)] border border-[#ffffff14] bg-[#111111]">
+        <div
+          // FIX: The hover lift is now pure CSS — no JS involved on mount.
+          // transition-transform with will-change keeps it GPU-composited.
+          className="relative aspect-[16/10] overflow-hidden rounded-[var(--radius-lg)] border border-[#ffffff14] bg-[#111111] transition-transform duration-200 ease-out group-hover/card:-translate-y-1"
+          style={{ willChange: 'transform' }}
+        >
           {!imgError ? (
             <Image
               src={project.imageUrl}
               alt={`Screenshot of ${project.title}`}
               fill
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+              className="object-cover transition-transform duration-500 group-hover/card:scale-[1.03]"
               sizes="(max-width: 768px) 100vw, 50vw"
               onError={() => setImgError(true)}
             />
@@ -94,6 +101,6 @@ export default function ProjectCard({ project, imageLeft = true }: ProjectCardPr
           )}
         </div>
       </div>
-    </motion.article>
+    </article>
   )
 }
