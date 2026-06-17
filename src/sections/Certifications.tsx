@@ -182,7 +182,7 @@ function CertCard({
           {cert.title}
         </p>
         <div className="flex items-center justify-between mt-1.5">
-          <p className="text-[11px] text-[#444] font-medium">{cert.issuer}</p>
+          <p className="text-[11px] text-[#99dde8] font-medium">{cert.issuer}</p>
           <p className="text-[11px] text-[#333] font-mono">{cert.year}</p>
         </div>
       </div>
@@ -300,7 +300,7 @@ export default function Certifications() {
             <h2 className="mt-3 font-display text-[clamp(32px,5vw,56px)] font-bold text-[#f2f2f2]">
               Certifications &amp; Recognition.
             </h2>
-            <p className="mt-4 text-[16px] text-[#555] max-w-xl leading-[1.6]">
+            <p className="mt-4 text-[16px] text-[#aaaaaa] max-w-xl leading-[1.6]">
               {totalCount} certificates across hackathons, technical certifications, and workshops.
             </p>
           </ScrollReveal>

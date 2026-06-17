@@ -5,6 +5,24 @@
       "title": "Hackathons",
       "certificates": [
         {
+          "id": "technoverse-hackathon-2026",
+          "title": "Technoverse Hackathon 2026",
+          "issuer": "Cognizant",
+          "year": "2026",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1781669760/Cognizant_Technoverse_Hackathon_2026_ppwfhf.png",
+          "credentialUrl": null,
+          "skills": []
+        },
+        {
+          "id": "cinequery-cybernautix-2025",
+          "title": "CINEQUERY-CYBERNAUTIX 2K25",
+          "issuer": "RMK Engineering College",
+          "year": "2025",
+          "image": "https://res.cloudinary.com/dydplsxdj/image/upload/v1781669391/Screenshot_2026-06-17_093853_vexrna.png",
+          "credentialUrl": null,
+          "skills": []
+        },  
+        {
           "id": "vel-idea-forage-hackathon-2025",
           "title": "VEL IDEA FORAGE Hackathon",
           "issuer": "VEL Tech",

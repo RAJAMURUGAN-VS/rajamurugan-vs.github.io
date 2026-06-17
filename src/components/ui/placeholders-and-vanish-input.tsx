@@ -92,31 +92,30 @@ export function PlaceholdersAndVanishInput({
   }, [value, autoResize]);
 
   // ── Submit logic ─────────────────────────────────────────────────
-  const vanishAndSubmit = useCallback(() => {
-    if (!value.trim()) return;
-    setAnimating(true);
-    setTimeout(() => {
-      setValue("");
-      setAnimating(false);
-    }, 320);
-  }, [value]);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter") {
       if (e.shiftKey) {
-        // Shift+Enter — let the browser/textarea handle the newline naturally
+        // Shift+Enter — insert newline naturally
         return;
       }
-      // Plain Enter — submit
+      // Plain Enter — submit the form so Contact's handleSubmit fires
       e.preventDefault();
-      vanishAndSubmit();
+      e.currentTarget.form?.requestSubmit();
     }
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    vanishAndSubmit();
+    // Fire parent first — it reads inputValue before we clear the textarea
     if (onSubmit) onSubmit(e);
+    // Then clear the textarea if there was content
+    if (value.trim()) {
+      setAnimating(true);
+      setTimeout(() => {
+        setValue("");
+        setAnimating(false);
+      }, 320);
+    }
   };
 
   return (

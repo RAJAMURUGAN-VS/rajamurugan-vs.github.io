@@ -255,12 +255,8 @@ function KeyboardPanel({
     }
 
     if (keyCode === 'Enter') {
-      // In textarea mode, Enter inserts a newline (Shift+Enter in the textarea submits)
-      const start = input.selectionStart ?? input.value.length
-      const end = input.selectionEnd ?? input.value.length
-      const newVal = input.value.slice(0, start) + '\n' + input.value.slice(end)
-      setReactInputValue(input, newVal, start + 1, start + 1)
-      onInputChange(input.value)
+      // Virtual keyboard Enter = submit the form (same as physical Enter)
+      input.form?.requestSubmit()
       return
     }
 
@@ -354,15 +350,15 @@ function KeypadWired({
         <button
           type="button"
           onMouseDown={e => { e.preventDefault(); if (keyCode) onKeyDown(keyCode) }}
-          onMouseUp={() => { if (keyCode) onKeyUp(keyCode) }}
-          onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
+          onMouseUp={() => { if (keyCode) setTimeout(() => onKeyUp(keyCode), 120) }}
+          onMouseLeave={() => { if (keyCode && isPressed) setTimeout(() => onKeyUp(keyCode), 120) }}
           className={cn(
-            "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
+            "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-all duration-100 active:scale-[0.98]",
             isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
             className
           )}
         >
-          <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800", childrenClassName)}>
+          <div className={cn("flex h-full w-full flex-col items-center justify-center text-[5px] text-neutral-700 transition-colors duration-100", isPressed && "text-cyan-800", childrenClassName)}>
             {children}
           </div>
         </button>
@@ -379,15 +375,15 @@ function KeypadWired({
         <button
           type="button"
           onMouseDown={e => { e.preventDefault(); if (keyCode) onKeyDown(keyCode) }}
-          onMouseUp={() => { if (keyCode) onKeyUp(keyCode) }}
-          onMouseLeave={() => { if (keyCode && isPressed) onKeyUp(keyCode) }}
+          onMouseUp={() => { if (keyCode) setTimeout(() => onKeyUp(keyCode), 120) }}
+          onMouseLeave={() => { if (keyCode && isPressed) setTimeout(() => onKeyUp(keyCode), 120) }}
           className={cn(
-            "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-transform duration-75 active:scale-[0.98]",
+            "flex h-6 w-6 cursor-pointer items-center justify-center rounded-[3.5px] bg-gray-100 shadow-[0px_0px_1px_0px_rgba(0,0,0,0.5),0px_1px_1px_0px_rgba(0,0,0,0.1),0px_1px_0px_0px_rgba(255,255,255,1)_inset] transition-all duration-100 active:scale-[0.98]",
             isPressed && "scale-[0.98] bg-cyan-100 shadow-[0px_0px_8px_2px_rgba(6,182,212,0.6),0px_1px_1px_0px_rgba(0,0,0,0.2)] border border-cyan-400/50",
             className
           )}
         >
-          <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700 transition-colors duration-75", isPressed && "text-cyan-800")}>
+          <div className={cn("flex h-full w-full flex-col items-start justify-between p-1 text-[5px] text-neutral-700 transition-colors duration-100", isPressed && "text-cyan-800")}>
             {children}
           </div>
         </button>
