@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import {
   FileSearch, GitMerge, ShieldCheck, Database,
@@ -37,6 +37,10 @@ interface RollingCardStackProps {
 
 export default function RollingCardStack({ cards }: RollingCardStackProps) {
   const [order, setOrder] = useState(() => cards.map((_, i) => i))
+  // Suppress first-load animation flash: cards snap into position silently,
+  // then animate only on user interaction.
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
   const textColor = '#0a2540'
 
   const handleAdvance = () => {
@@ -64,13 +68,19 @@ export default function RollingCardStack({ cards }: RollingCardStackProps) {
               key={cardIdx}
               layout
               layoutId={`card-${cardIdx}`}
+              initial={mounted ? undefined : {
+                width: `${slot.widthFactor * 100}%`,
+                y: slot.yOffset,
+                opacity: isVisible ? 1 : 0,
+                zIndex: isVisible ? slotIdx + 1 : 0,
+              }}
               animate={{
                 width: `${slot.widthFactor * 100}%`,
                 y: slot.yOffset,
                 opacity: isVisible ? 1 : 0,
                 zIndex: isVisible ? slotIdx + 1 : 0,
               }}
-              transition={SPRING}
+              transition={mounted ? SPRING : { duration: 0 }}
               style={{
                 position: 'absolute', bottom: 0, left: '50%', x: '-50%',
                 maxWidth: 700,

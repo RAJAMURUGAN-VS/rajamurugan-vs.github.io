@@ -1,4 +1,5 @@
 'use client'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import {
@@ -23,6 +24,9 @@ export function ScrollReveal({
   className,
 }: ScrollRevealProps) {
   const prefersReducedMotion = useReducedMotion()
+  // Only enable reveal animation after client hydration to prevent SSR flash
+  const [mounted, setMounted] = useState(false)
+  useEffect(() => { setMounted(true) }, [])
 
   const variantMap = {
     up: fadeUpVariant,
@@ -30,11 +34,11 @@ export function ScrollReveal({
     right: slideInRightVariant,
   }
 
-  const activeVariant = prefersReducedMotion ? noMotionVariant : variantMap[direction]
+  const activeVariant = prefersReducedMotion || !mounted ? noMotionVariant : variantMap[direction]
 
   return (
     <motion.div
-      initial="hidden"
+      initial={mounted ? 'hidden' : false}
       whileInView="visible"
       viewport={{ once: true, margin: '-100px' }}
       variants={activeVariant}
