@@ -708,37 +708,40 @@ export default function Contact() {
           <p className="text-center text-[12px] text-[#555555] mt-3 font-mono">
             Press Enter or click ↵ — we&apos;ll ask for your email next
           </p>
-          {/* Empty message indicator */}
-          <AnimatePresence>
-            {messageError && (
-              <motion.p
-                key="msg-error"
-                initial={{ opacity: 0, y: -6 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -6 }}
-                transition={{ duration: 0.2, ease: 'easeOut' }}
-                className="mt-2 text-[12px] font-mono"
-                style={{ color: 'rgba(251,191,36,0.85)' }}
-              >
-                ∅ &nbsp;Nothing to send yet — share what&apos;s on your mind first.
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {/* Static-height slot — always reserves space so layout never shifts */}
+          <div className="h-6 mt-2 flex items-center justify-center">
+            <AnimatePresence>
+              {messageError && (
+                <motion.p
+                  key="msg-error"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.18 }}
+                  className="text-[12px] font-mono"
+                  style={{ color: 'rgba(251,191,36,0.85)' }}
+                >
+                  ∅ &nbsp;Nothing to send yet — share what&apos;s on your mind first.
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
         </ScrollReveal>
 
-        {/* CTA buttons */}
-        <ScrollReveal delay={150} className="mt-6 w-full max-w-2xl">
-          <div className="flex flex-wrap items-center justify-center gap-4">
+        {/* CTA buttons — always a row, smaller on mobile */}
+        <ScrollReveal delay={150} className="mt-4 w-full max-w-2xl">
+          <div className="flex flex-row items-center justify-center gap-3">
             <button
               type="button"
               onClick={() => {
                 if (!inputValue.trim()) {
                   setMessageError(true)
                   setTimeout(() => setMessageError(false), 3000)
-                  inputRef.current?.focus()
+                  // Don't open keyboard — just show the error
                   return
                 }
                 setMessageError(false)
+                setKeyboardOpen(false)
                 setPendingMessage(inputValue.trim())
                 setSenderEmail('')
                 setSendStatus('idle')
@@ -746,11 +749,11 @@ export default function Contact() {
                 setEmailPopupOpen(true)
                 setTimeout(() => senderEmailRef.current?.focus(), 350)
               }}
-              className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold rounded-[var(--radius-md)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg bg-accent text-[#080808] hover:bg-[#a5f0fa]"
+              className="inline-flex items-center justify-center px-4 py-2.5 sm:px-6 sm:py-3 text-[13px] sm:text-[15px] font-semibold rounded-[var(--radius-md)] transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg bg-accent text-[#080808] hover:bg-[#a5f0fa] whitespace-nowrap"
             >
               Send a Message
             </button>
-            <Button href="/resume.pdf" variant="secondary" size="lg" download>
+            <Button href="/resume.pdf" variant="secondary" size="sm" className="sm:!px-6 sm:!py-3 sm:!text-[15px] whitespace-nowrap" download>
               Download Resume
             </Button>
           </div>
