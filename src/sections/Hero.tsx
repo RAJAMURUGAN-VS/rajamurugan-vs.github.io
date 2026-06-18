@@ -262,8 +262,8 @@ export default function Hero() {
               transition={{ duration: 0.5, delay: 0.65 }}
               className="mb-5 h-6 overflow-hidden"
             >
-              <AnimatePresence mode="wait">
-                <motion.p
+              <AnimatePresence mode="popLayout">
+                <motion.p 
                   key={roleIndex}
                   initial={{ y: 18, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}

@@ -251,7 +251,7 @@ export default function ReactJourney() {
 
         {/* Grid with page transition */}
         <div className="relative" style={{ minHeight: gridMinHeight || undefined }}>
-          <AnimatePresence mode="wait" initial={false}>
+          <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={page}
               ref={gridRef}

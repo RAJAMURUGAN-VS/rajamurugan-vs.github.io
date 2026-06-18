@@ -62,8 +62,6 @@ export default function RollingCardStack({ cards }: RollingCardStackProps) {
           return (
             <motion.div
               key={cardIdx}
-              layout
-              layoutId={`card-${cardIdx}`}
               initial={false}
               animate={{
                 width: `${slot.widthFactor * 100}%`,

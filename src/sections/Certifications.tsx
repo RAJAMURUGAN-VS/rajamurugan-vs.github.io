@@ -330,7 +330,7 @@ export default function Certifications() {
 
           {/* Certificate grid(s) */}
           <motion.div layout className="space-y-16">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode="popLayout">
               {filteredCategories.map((category, catIndex) => (
                 <motion.div
                   key={category.id}

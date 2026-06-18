@@ -207,7 +207,7 @@ export function PlaceholdersAndVanishInput({
 
       {/* Animated placeholder — only when empty */}
       <div className="absolute inset-0 flex items-start pt-3.5 pointer-events-none rounded-2xl overflow-hidden">
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {!value && (
             <motion.p
               initial={{ y: 5, opacity: 0 }}
