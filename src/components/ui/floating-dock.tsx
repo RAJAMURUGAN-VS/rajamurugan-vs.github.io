@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useRef } from 'react'
-import { motion, useMotionValue, useSpring, useTransform, AnimatePresence } from 'framer-motion'
+import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from 'framer-motion'
 import { useState } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -137,7 +137,7 @@ function DockIcon({
   item,
   theme,
 }: {
-  mouseX: ReturnType<typeof useMotionValue>
+  mouseX: MotionValue<number>
   item: DockItem
   theme: DockTheme
 }) {
