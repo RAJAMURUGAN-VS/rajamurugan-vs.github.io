@@ -2,23 +2,23 @@ import { StatItem } from '@/types'
 
 export const stats: StatItem[] = [
   {
-    label: 'Problems Solved',
+    label: 'Programming Problems Solved on SkillRack',
     value: 2200,
     suffix: '+',
   },
   {
     label: 'Hackathons',
-    value: 3,
+    value: 7,
     suffix: '',
   },
   {
     label: 'Internships',
-    value: 2,
+    value: 3,
     suffix: '',
   },
   {
     label: 'Projects Shipped',
-    value: 5,
+    value: 10,
     suffix: '+',
   },
 ]

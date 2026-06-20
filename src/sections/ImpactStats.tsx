@@ -21,10 +21,10 @@ export default function ImpactStats() {
           </h2>
         </ScrollReveal>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+        <div className="flex flex-wrap justify-center items-start gap-10 md:gap-16 lg:gap-24">
           {stats.map((stat, i) => (
             <ScrollReveal key={stat.label} delay={i * 100} direction="up">
-              <div className="flex flex-col items-center text-center gap-2">
+              <div className="flex flex-col items-center text-center gap-2 max-w-[220px]">
                 <div
                   className="font-display font-extrabold text-[#0a1628]"
                   style={{ fontSize: 'clamp(40px, 5vw, 72px)', lineHeight: 1 }}

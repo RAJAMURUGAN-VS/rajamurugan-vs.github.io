@@ -315,32 +315,6 @@ export default function Hero() {
                 Download Resume
               </Button>
             </motion.div>
-
-            {/* Social links — desktop only, left column */}
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 1.1 }}
-              className="hidden lg:flex items-center gap-4 sm:gap-5"
-            >
-              {[
-                { href: SITE_META.github, label: 'GitHub', icon: <GitHubIcon /> },
-                { href: SITE_META.linkedin, label: 'LinkedIn', icon: <LinkedInIcon /> },
-                { href: 'https://huggingface.co/RAJAMURUGAN-VS', label: 'HuggingFace', icon: <HuggingFaceIcon /> },
-              ].map(({ href, label, icon }) => (
-                <a
-                  key={label}
-                  href={href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={label}
-                  className="flex items-center gap-1.5 text-[12px] sm:text-[13px] text-[#444] hover:text-[#aaa] transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
-                >
-                  {icon}
-                  <span className="font-mono">{label}</span>
-                </a>
-              ))}
-            </motion.div>
           </div>
 
           {/* ── RIGHT COLUMN — desktop photo + social links ──────── */}
@@ -353,7 +327,7 @@ export default function Hero() {
             {/* Photo */}
             <div
               className="relative rounded-full"
-              style={{ width: 'clamp(200px, 20vw, 260px)', height: 'clamp(200px, 20vw, 260px)' }}
+              style={{ width: 'clamp(400px, 20vw, 260px)', height: 'clamp(400px, 20vw, 260px)' }}
             >
               <div
                 aria-hidden="true"
