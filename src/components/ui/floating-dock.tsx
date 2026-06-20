@@ -2,6 +2,7 @@
 
 import React, { useRef } from 'react'
 import { motion, useMotionValue, useSpring, useTransform, AnimatePresence, MotionValue } from 'framer-motion'
+import { useLenis } from 'lenis/react'
 import { useState } from 'react'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -130,6 +131,11 @@ function FloatingDockDesktop({
   )
 }
 
+// ─── Smooth scroll helper ────────────────────────────────────────────────────
+
+// Ease: expo-out — fast start, silky deceleration
+const easeExpoOut = (t: number) => 1 - Math.pow(2, -10 * t)
+
 // ─── Dock Icon (with magnification) ──────────────────────────────────────────
 
 function DockIcon({
@@ -144,6 +150,7 @@ function DockIcon({
   const ref = useRef<HTMLDivElement>(null)
   const [hovered, setHovered] = useState(false)
   const tokens = getThemeTokens(theme)
+  const lenis = useLenis()
 
   const distance = useTransform(mouseX, (val: number) => {
     const bounds = ref.current?.getBoundingClientRect() ?? { x: 0, width: 0 }
@@ -159,10 +166,25 @@ function DockIcon({
   const y = useTransform(distance, [-150, 0, 150], [0, -12, 0])
   const ySpring = useSpring(y, { mass: 0.1, stiffness: 150, damping: 12 })
 
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (item.href?.startsWith('#')) {
+      e.preventDefault()
+      const target = document.querySelector(item.href)
+      if (target) {
+        lenis?.scrollTo(target as HTMLElement, {
+          offset: -80,
+          duration: 1.4,
+          easing: easeExpoOut,
+        })
+      }
+    }
+    item.onClick?.()
+  }
+
   return (
     <a
       href={item.href}
-      onClick={item.onClick}
+      onClick={handleClick}
       aria-label={item.title}
       className="relative flex items-center justify-center focus-visible:outline-none"
     >
@@ -239,6 +261,23 @@ function MobileArcItem({
   onClose: () => void
 }) {
   const [hovered, setHovered] = useState(false)
+  const lenis = useLenis()
+
+  const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (item.href?.startsWith('#')) {
+      e.preventDefault()
+      const target = document.querySelector(item.href)
+      if (target) {
+        lenis?.scrollTo(target as HTMLElement, {
+          offset: -80,
+          duration: 1.4,
+          easing: easeExpoOut,
+        })
+      }
+    }
+    item.onClick?.()
+    onClose()
+  }
 
   // Tooltip direction logic:
   // - Items along top edge (|x| > |y|): show tooltip below the icon
@@ -248,7 +287,7 @@ function MobileArcItem({
   return (
     <motion.a
       href={item.href}
-      onClick={() => { item.onClick?.(); onClose() }}
+      onClick={handleClick}
       initial={{ opacity: 0, scale: 0.3 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.3 }}
