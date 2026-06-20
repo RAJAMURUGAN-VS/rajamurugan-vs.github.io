@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion'
+import emailjs from '@emailjs/browser'
 import { Mail } from 'lucide-react'
 import { LampContainer } from '@/components/ui/lamp'
 import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input'
@@ -571,13 +572,17 @@ export default function Contact() {
     setSendStatus('sending')
     setSendError('')
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ senderEmail: senderEmail.trim(), message: pendingMessage }),
-      })
-      const json = await res.json()
-      if (!res.ok) throw new Error(json.error ?? 'Failed to send.')
+      // EmailJS — client-side email, works on static GitHub Pages (no server needed)
+      await emailjs.send(
+        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+        {
+          from_email: senderEmail.trim(),
+          message: pendingMessage,
+          reply_to: senderEmail.trim(),
+        },
+        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+      )
       setSendStatus('success')
       // Auto-close after 3s on success
       setTimeout(() => {
@@ -593,7 +598,7 @@ export default function Contact() {
       }, 3000)
     } catch (err) {
       setSendStatus('error')
-      setSendError(err instanceof Error ? err.message : 'Something went wrong.')
+      setSendError(err instanceof Error ? err.message : 'Something went wrong. Please try emailing directly.')
     }
   }
 

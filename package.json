@@ -12,6 +12,7 @@
     "deploy": "gh-pages -d out"
   },
   "dependencies": {
+    "@emailjs/browser": "^4.4.1",
     "@tabler/icons-react": "^3.44.0",
     "@types/nodemailer": "^8.0.1",
     "clsx": "^2.1.1",
