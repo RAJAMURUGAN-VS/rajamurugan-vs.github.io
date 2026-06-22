@@ -254,13 +254,15 @@ export default function ReactJourney() {
           <AnimatePresence mode="popLayout" initial={false}>
             <motion.div
               key={page}
-              ref={gridRef}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: PAGE_TRANSITION_MS / 1000 }}
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5"
             >
+              <div
+                ref={gridRef}
+                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-5"
+              >
             {pageProjects.map((p, idx) => {
               const col = idx % COLS
               const row = Math.floor(idx / COLS)
@@ -277,6 +279,7 @@ export default function ReactJourney() {
                 />
               )
             })}
+              </div>
             </motion.div>
           </AnimatePresence>
         </div>

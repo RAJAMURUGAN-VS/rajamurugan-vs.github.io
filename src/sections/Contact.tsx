@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback, useEffect } from 'react'
 import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion'
-import emailjs from '@emailjs/browser'
+
 import { Mail } from 'lucide-react'
 import { LampContainer } from '@/components/ui/lamp'
 import { PlaceholdersAndVanishInput } from '@/components/ui/placeholders-and-vanish-input'
@@ -572,17 +572,15 @@ export default function Contact() {
     setSendStatus('sending')
     setSendError('')
     try {
-      // EmailJS — client-side email, works on static GitHub Pages (no server needed)
-      await emailjs.send(
-        process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
-        process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
-        {
-          from_email: senderEmail.trim(),
-          message: pendingMessage,
-          reply_to: senderEmail.trim(),
-        },
-        process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
-      )
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from_email: senderEmail.trim(), message: pendingMessage }),
+      })
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}))
+        throw new Error(data.error || 'Failed to send.')
+      }
       setSendStatus('success')
       // Auto-close after 3s on success
       setTimeout(() => {
@@ -790,15 +788,17 @@ export default function Contact() {
       <AnimatePresence>
         {keyboardOpen && (
           <motion.div
-            ref={keyboardRef}
             key="keyboard-panel"
             initial={{ y: '100%', opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 320, damping: 32, mass: 0.8 }}
-            className="w-full overflow-hidden fixed bottom-0 left-0 right-0 z-50"
-            style={{ background: '#0d0d0d', borderTop: '1px solid rgba(255,255,255,0.06)' }}
           >
+            <div
+              ref={keyboardRef}
+              className="w-full overflow-hidden fixed bottom-0 left-0 right-0 z-50"
+              style={{ background: '#0d0d0d', borderTop: '1px solid rgba(255,255,255,0.06)' }}
+            >
             {/* Dismiss strip */}
             <div className="flex items-center justify-between px-6 pt-3 pb-1 max-w-2xl mx-auto">
               <span className="text-[11px] font-mono text-[#444] uppercase tracking-[0.15em] select-none">
@@ -815,6 +815,7 @@ export default function Contact() {
             </div>
             <div className="pb-8 px-4">
               <KeyboardPanel inputRef={inputRef} onInputChange={handleInputChange} keyboardOpen={keyboardOpen} />
+            </div>
             </div>
           </motion.div>
         )}
